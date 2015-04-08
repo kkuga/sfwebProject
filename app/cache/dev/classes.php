@@ -15303,3 +15303,5034 @@ return array($countAdded, $countUpdated);
 }
 }
 }
+namespace Sonata\PageBundle\Block
+{
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Templating\EngineInterface;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Sonata\BlockBundle\Block\BaseBlockService;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+class ChildrenPagesBlockService extends BaseBlockService
+{
+protected $siteSelector;
+protected $cmsManagerSelector;
+public function __construct($name, EngineInterface $templating, SiteSelectorInterface $siteSelector, CmsManagerSelectorInterface $cmsManagerSelector)
+{
+parent::__construct($name, $templating);
+$this->siteSelector = $siteSelector;
+$this->cmsManagerSelector = $cmsManagerSelector;
+}
+public function execute(BlockContextInterface $blockContext, Response $response = null)
+{
+$settings = $blockContext->getSettings();
+$cmsManager = $this->cmsManagerSelector->retrieve();
+if ($settings['current']) {
+$page = $cmsManager->getCurrentPage();
+} elseif ($settings['pageId']) {
+$page = $settings['pageId'];
+} else {
+try {
+$page = $cmsManager->getPage($this->siteSelector->retrieve(),'/');
+} catch (PageNotFoundException $e) {
+$page = false;
+}
+}
+return $this->renderResponse($blockContext->getTemplate(), array('page'=> $page,'block'=> $blockContext->getBlock(),'settings'=> $settings
+), $response);
+}
+public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+{
+}
+public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+{
+$formMapper->add('settings','sonata_type_immutable_array', array('keys'=> array(
+array('title','text', array('required'=> false
+)),
+array('current','checkbox', array('required'=> false
+)),
+array('pageId','sonata_page_selector', array('model_manager'=> $formMapper->getAdmin()->getModelManager(),'class'=> $formMapper->getAdmin()->getClass(),'site'=> $block->getPage()->getSite(),'required'=> false
+)),
+array('class','text', array('required'=> false
+)),
+)
+));
+}
+public function getName()
+{
+return'Children Page (core)';
+}
+public function setDefaultSettings(OptionsResolverInterface $resolver)
+{
+$resolver->setDefaults(array('current'=> true,'pageId'=> null,'title'=>'','class'=>'','template'=>'SonataPageBundle:Block:block_core_children_pages.html.twig'));
+}
+public function prePersist(BlockInterface $block)
+{
+$block->setSetting('pageId', is_object($block->getSetting('pageId')) ? $block->getSetting('pageId')->getId() : null);
+}
+public function preUpdate(BlockInterface $block)
+{
+$block->setSetting('pageId', is_object($block->getSetting('pageId')) ? $block->getSetting('pageId')->getId() : null);
+}
+public function load(BlockInterface $block)
+{
+if (is_numeric($block->getSetting('pageId', null))) {
+$cmsManager = $this->cmsManagerSelector->retrieve();
+$site = $block->getPage()->getSite();
+$block->setSetting('pageId', $cmsManager->getPage($site, $block->getSetting('pageId')));
+}
+}
+}
+}
+namespace Sonata\BlockBundle\Block\Service
+{
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Block\BaseBlockService;
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+class ContainerBlockService extends BaseBlockService
+{
+public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+{
+$formMapper->add('enabled');
+$formMapper->add('settings','sonata_type_immutable_array', array('keys'=> array(
+array('code','text', array('required'=> false)),
+array('layout','textarea', array()),
+array('class','text', array('required'=> false)),
+array('template','sonata_type_container_template_choice', array())
+)
+));
+$formMapper->add('children','sonata_type_collection', array(), array('admin_code'=>'sonata.page.admin.block','edit'=>'inline','inline'=>'table','sortable'=>'position'));
+}
+public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+{
+}
+public function execute(BlockContextInterface $blockContext, Response $response = null)
+{
+return $this->renderResponse($blockContext->getTemplate(), array('block'=> $blockContext->getBlock(),'decorator'=> $this->getDecorator($blockContext->getSetting('layout')),'settings'=> $blockContext->getSettings(),
+), $response);
+}
+public function setDefaultSettings(OptionsResolverInterface $resolver)
+{
+$resolver->setDefaults(array('code'=>'','layout'=>'{{ CONTENT }}','class'=>'','template'=>'SonataBlockBundle:Block:block_container.html.twig',
+));
+}
+public function getName()
+{
+return $this->name;
+}
+protected function getDecorator($layout)
+{
+$key ='{{ CONTENT }}';
+if (strpos($layout, $key) === false) {
+return array();
+}
+$segments = explode($key, $layout);
+$decorator = array('pre'=> isset($segments[0]) ? $segments[0] :'','post'=> isset($segments[1]) ? $segments[1] :'',
+);
+return $decorator;
+}
+}
+}
+namespace Sonata\PageBundle\Block
+{
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Block\Service\ContainerBlockService as BaseContainerBlockService;
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+class ContainerBlockService extends BaseContainerBlockService
+{
+public function setDefaultSettings(OptionsResolverInterface $resolver)
+{
+$resolver->setDefaults(array('code'=>'','layout'=>'{{ CONTENT }}','class'=>'','template'=>'SonataPageBundle:Block:block_container.html.twig',
+));
+}
+}
+}
+namespace Sonata\Cache
+{
+interface CacheAdapterInterface
+{
+function get(array $keys);
+function has(array $keys);
+function set(array $keys, $value, $ttl = CacheElement::DAY, array $contextualKeys = array());
+function flush(array $keys = array());
+function flushAll();
+function isContextual();
+}}
+namespace Sonata\CacheBundle\Adapter
+{
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Process\Process;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Sonata\Cache\CacheAdapterInterface;
+use Sonata\Cache\CacheElement;
+use Symfony\Component\HttpFoundation\Request;
+class VarnishCache implements CacheAdapterInterface
+{
+protected $token;
+protected $servers;
+protected $router;
+protected $purgeInstruction;
+protected $resolver;
+public function __construct($token, array $servers, RouterInterface $router, $purgeInstruction, ControllerResolverInterface $resolver = null)
+{
+$this->token = $token;
+$this->servers = $servers;
+$this->router = $router;
+$this->purgeInstruction = $purgeInstruction;
+$this->resolver = $resolver;
+}
+public function flushAll()
+{
+return $this->runCommand(
+$this->purgeInstruction =='ban'?'ban.url':'purge',
+$this->purgeInstruction =='ban'?'.*':'req.url ~ .*');
+}
+protected function runCommand($command, $expression)
+{
+$return = true;
+foreach ($this->servers as $server) {
+$command = str_replace(array('{{ COMMAND }}','{{ EXPRESSION }}'), array($command, $expression), $server);
+$process = new Process($command);
+if ($process->run() == 0) {
+continue;
+}
+$return = false;
+}
+return $return;
+}
+public function flush(array $keys = array())
+{
+$parameters = array();
+foreach ($keys as $key => $value) {
+$parameters[] = sprintf('obj.http.%s ~ %s', $this->normalize($key), $value);
+}
+$purge = implode(" && ", $parameters);
+return $this->runCommand($this->purgeInstruction, $purge);
+}
+public function has(array $keys)
+{
+return true;
+}
+public function get(array $keys)
+{
+if (!isset($keys['controller'])) {
+throw new \RuntimeException('Please define a controller key');
+}
+if (!isset($keys['parameters'])) {
+throw new \RuntimeException('Please define a parameters key');
+}
+$content = sprintf('<esi:include src="%s"/>', $this->getUrl($keys));
+return new CacheElement($keys, new Response($content));
+}
+public function set(array $keys, $data, $ttl = CacheElement::DAY, array $contextualKeys = array())
+{
+return new CacheElement($keys, $data, $ttl, $contextualKeys);
+}
+protected function getUrl(array $keys)
+{
+$parameters = array('token'=> $this->computeHash($keys),'parameters'=> $keys
+);
+return $this->router->generate('sonata_cache_esi', $parameters, false);
+}
+protected function computeHash(array $keys)
+{
+ksort($keys);
+return hash('sha256', $this->token.serialize($keys));
+}
+protected function normalize($key)
+{
+return sprintf('x-sonata-cache-%s', str_replace(array('_','\\'),'-', strtolower($key)));
+}
+public function cacheAction(Request $request)
+{
+$parameters = $request->get('parameters', array());
+if ($request->get('token') != $this->computeHash($parameters)) {
+throw new AccessDeniedHttpException('Invalid token');
+}
+$subRequest = Request::create('','get', $parameters, $request->cookies->all(), array(), $request->server->all());
+$controller = $this->resolver->getController($subRequest);
+$subRequest->attributes->add(array('_controller'=> $parameters['controller']));
+$subRequest->attributes->add($parameters['parameters']);
+$arguments = $this->resolver->getArguments($subRequest, $controller);
+return call_user_func_array($controller, $arguments);
+}
+public function isContextual()
+{
+return true;
+}
+}
+}
+namespace Sonata\PageBundle\Cache
+{
+use Sonata\BlockBundle\Block\BlockContextManagerInterface;
+use Sonata\Cache\Invalidation\Recorder;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\Cache\CacheElement;
+use Sonata\BlockBundle\Block\BlockRendererInterface;
+use Sonata\CacheBundle\Adapter\VarnishCache;
+class BlockEsiCache extends VarnishCache
+{
+protected $blockRenderer;
+protected $managers;
+protected $contextManager;
+protected $recorder;
+public function __construct($token, array $servers, RouterInterface $router, $purgeInstruction, BlockRendererInterface $blockRenderer, BlockContextManagerInterface $contextManager, array $managers = array(), Recorder $recorder = null)
+{
+parent::__construct($token, $servers, $router, $purgeInstruction, null);
+$this->blockRenderer = $blockRenderer;
+$this->managers = $managers;
+$this->contextManager = $contextManager;
+$this->recorder = $recorder;
+}
+private function validateKeys(array $keys)
+{
+foreach (array('block_id','page_id','manager','updated_at') as $key) {
+if (!isset($keys[$key])) {
+throw new \RuntimeException(sprintf('Please define a `%s` key', $key));
+}
+}
+}
+public function get(array $keys)
+{
+$this->validateKeys($keys);
+$keys['_token'] = $this->computeHash($keys);
+$content = sprintf('<esi:include src="%s" />', $this->router->generate('sonata_page_cache_esi', $keys, true));
+return new CacheElement($keys, new Response($content));
+}
+public function set(array $keys, $data, $ttl = CacheElement::DAY, array $contextualKeys = array())
+{
+$this->validateKeys($keys);
+return new CacheElement($keys, $data, $ttl, $contextualKeys);
+}
+protected function computeHash(array $keys)
+{
+return hash('sha256', $this->token . serialize(array('manager'=> (string)$keys['manager'],'page_id'=> (string)$keys['page_id'],'block_id'=> (string)$keys['block_id'],'updated_at'=> (string)$keys['updated_at'],
+)));
+}
+public function cacheAction(Request $request)
+{
+$parameters = array_merge($request->query->all(), $request->attributes->all());
+if ($request->get('_token') != $this->computeHash($parameters)) {
+throw new AccessDeniedHttpException('Invalid token');
+}
+$manager = $this->getManager($request);
+$page = $manager->getPageById($request->get('page_id'));
+if (!$page) {
+throw new NotFoundHttpException(sprintf('Page not found : %s', $request->get('page_id')));
+}
+$block = $manager->getBlock($request->get('block_id'));
+$blockContext = $this->contextManager->get($block);
+if ($this->recorder) {
+$this->recorder->add($blockContext->getBlock());
+$this->recorder->push();
+}
+$response = $this->blockRenderer->render($blockContext);
+if ($this->recorder) {
+$keys = $this->recorder->pop();
+$keys['page_id'] = $page->getId();
+$keys['block_id'] = $block->getId();
+foreach ($keys as $key => $value) {
+$response->headers->set($this->normalize($key), $value);
+}
+}
+$response->headers->set('x-sonata-page-not-decorable', true);
+return $response;
+}
+private function getManager(Request $request)
+{
+if (!isset($this->managers[$request->get('manager')])) {
+throw new NotFoundHttpException(sprintf('The manager `%s` does not exist', $request->get('manager')));
+}
+return $this->managers[$request->get('manager')];
+}
+}
+}
+namespace Sonata\PageBundle\Cache
+{
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\BlockBundle\Block\BlockContextManagerInterface;
+use Sonata\BlockBundle\Block\BlockRendererInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\Cache\CacheAdapterInterface;
+use Sonata\Cache\CacheElement;
+class BlockJsCache implements CacheAdapterInterface
+{
+protected $router;
+protected $sync;
+protected $cmsSelector;
+protected $blockRenderer;
+protected $contextManager;
+public function __construct(RouterInterface $router, CmsManagerSelectorInterface $cmsSelector, BlockRendererInterface $blockRenderer, BlockContextManagerInterface $contextManager, $sync = false)
+{
+$this->router = $router;
+$this->sync = $sync;
+$this->cmsSelector = $cmsSelector;
+$this->blockRenderer = $blockRenderer;
+$this->contextManager = $contextManager;
+}
+public function flushAll()
+{
+return true;
+}
+public function flush(array $keys = array())
+{
+return true;
+}
+public function has(array $keys)
+{
+return true;
+}
+public function get(array $keys)
+{
+$this->validateKeys($keys);
+return new CacheElement($keys, new Response($this->sync ? $this->getSync($keys) : $this->getAsync($keys)));
+}
+private function validateKeys(array $keys)
+{
+foreach (array('block_id','page_id','manager','updated_at') as $key) {
+if (!isset($keys[$key])) {
+throw new \RuntimeException(sprintf('Please define a `%s` key, provided: %s', $key, json_encode(array_keys($keys))));
+}
+}
+}
+protected function getSync(array $keys)
+{
+return sprintf('<div id="block-cms-%s" >
+    <script>
+        /*<![CDATA[*/
+            (function () {
+                var block, xhr;
+                block = document.getElementById("block-cms-%s");
+                if (window.XMLHttpRequest) {
+                    xhr = new XMLHttpRequest();
+                } else {
+                    xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+
+                xhr.open("GET", "%s", false);
+                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                xhr.send("");
+
+                // create an empty element
+                var div = document.createElement("div");
+                div.innerHTML = xhr.responseText;
+
+                fo  r (var node in div.childNodes) {
+                    if (div.childNodes[node] && div.childNodes[node].nodeType == 1) {
+                        block.parentNode.replaceChild(div.childNodes[node], block);
+                    }
+                }
+            })();
+        /*]]>*/
+    </script>
+</div>', $keys['block_id'], $keys['block_id'], $this->router->generate('sonata_page_js_sync_cache', $keys, true));
+}
+protected function getAsync(array $keys)
+{
+return sprintf('<div id="block-cms-%s" >
+    <script>
+        /*<![CDATA[*/
+            (function() {
+                var b = document.createElement("script");
+                b.type = "text/javascript";
+                b.async = true;
+                b.src = "%s"
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(b, s);
+            })();
+
+        /*]]>*/
+    </script>
+</div>', $keys['block_id'], $this->router->generate('sonata_page_js_async_cache', $keys, true));
+}
+public function set(array $keys, $data, $ttl = CacheElement::DAY, array $contextualKeys = array())
+{
+$this->validateKeys($keys);
+return new CacheElement($keys, $data, $ttl, $contextualKeys);
+}
+public function cacheAction(Request $request)
+{
+$cms = $this->cmsSelector->retrieve();
+try {
+$page = $cms->getPageById($request->get('page_id'));
+} catch (PageNotFoundException $e) {
+$page = false;
+}
+$block = $cms->getBlock($request->get('block_id'));
+if (!$page || !$block) {
+return new Response('', 404);
+}
+$options = array();
+$blockContext = $this->contextManager->get($block, $options);
+$response = $this->blockRenderer->render($blockContext);
+$response->setPrivate();
+if ($this->sync) {
+return $response;
+}
+$response->setContent(sprintf('
+    (function () {
+        var block = document.getElementById("block-cms-%s");
+
+        var div = document.createElement("div");
+        div.innerHTML = %s;
+
+        for (var node in div.childNodes) {
+            if (div.childNodes[node] && div.childNodes[node].nodeType == 1) {
+                block.parentNode.replaceChild(div.childNodes[node], block);
+            }
+        }
+    })();
+', $block->getId(), json_encode($response->getContent())));
+$response->headers->set('Content-Type','application/javascript');
+return $response;
+}
+public function isContextual()
+{
+return false;
+}
+}
+}
+namespace Sonata\CacheBundle\Adapter
+{
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Sonata\Cache\CacheAdapterInterface;
+use Sonata\Cache\CacheElement;
+use Symfony\Component\HttpFoundation\Request;
+class SsiCache implements CacheAdapterInterface
+{
+protected $router;
+protected $servers;
+protected $resolver;
+protected $token;
+public function __construct($token, RouterInterface $router, ControllerResolverInterface $resolver = null)
+{
+$this->token = $token;
+$this->router = $router;
+$this->resolver = $resolver;
+}
+public function flushAll()
+{
+return true; }
+public function flush(array $keys = array())
+{
+return true; }
+public function has(array $keys)
+{
+return true;
+}
+public function get(array $keys)
+{
+if (!isset($keys['controller'])) {
+throw new \RuntimeException('Please define a controller key');
+}
+if (!isset($keys['parameters'])) {
+throw new \RuntimeException('Please define a parameters key');
+}
+$content = sprintf('<!--# include virtual="%s" -->', $this->getUrl($keys));
+return new CacheElement($keys, new Response($content));
+}
+public function set(array $keys, $data, $ttl = CacheElement::DAY, array $contextualKeys = array())
+{
+return new CacheElement($keys, $data, $ttl, $contextualKeys);
+}
+protected function getUrl(array $keys)
+{
+$parameters = array('token'=> $this->computeHash($keys),'parameters'=> $keys
+);
+return $this->router->generate('sonata_cache_ssi', $parameters, false);
+}
+protected function computeHash(array $keys)
+{
+ksort($keys);
+return hash('sha256', $this->token.serialize($keys));
+}
+public function cacheAction(Request $request)
+{
+$parameters = $request->get('parameters', array());
+if ($request->get('token') != $this->computeHash($parameters)) {
+throw new AccessDeniedHttpException('Invalid token');
+}
+$subRequest = Request::create('','get', $parameters, $request->cookies->all(), array(), $request->server->all());
+$controller = $this->resolver->getController($subRequest);
+$subRequest->attributes->add(array('_controller'=> $parameters['controller']));
+$subRequest->attributes->add($parameters['parameters']);
+$arguments = $this->resolver->getArguments($subRequest, $controller);
+return call_user_func_array($controller, $arguments);
+}
+public function isContextual()
+{
+return true;
+}
+}
+}
+namespace Sonata\PageBundle\Cache
+{
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\BlockBundle\Block\BlockRendererInterface;
+use Sonata\BlockBundle\Block\BlockContextManagerInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerInterface;
+use Sonata\Cache\CacheElement;
+use Sonata\CacheBundle\Adapter\SsiCache;
+class BlockSsiCache extends SsiCache
+{
+protected $blockRenderer;
+protected $managers;
+protected $contextManager;
+public function __construct($token, RouterInterface $router, BlockRendererInterface $blockRenderer, BlockContextManagerInterface $contextManager, array $managers = array())
+{
+parent::__construct($token, $router, null);
+$this->managers = $managers;
+$this->blockRenderer = $blockRenderer;
+$this->contextManager = $contextManager;
+}
+private function validateKeys(array $keys)
+{
+foreach (array('block_id','page_id','manager','updated_at') as $key) {
+if (!isset($keys[$key])) {
+throw new \RuntimeException(sprintf('Please define a `%s` key', $key));
+}
+}
+}
+public function get(array $keys)
+{
+$this->validateKeys($keys);
+$keys['_token'] = $this->computeHash($keys);
+$content = sprintf('<!--# include virtual="%s" -->', $this->router->generate('sonata_page_cache_ssi', $keys, false));
+return new CacheElement($keys, new Response($content));
+}
+public function set(array $keys, $data, $ttl = CacheElement::DAY, array $contextualKeys = array())
+{
+$this->validateKeys($keys);
+return new CacheElement($keys, $data, $ttl, $contextualKeys);
+}
+protected function computeHash(array $keys)
+{
+return hash('sha256', $this->token.serialize(array('manager'=> (string) $keys['manager'],'page_id'=> (string) $keys['page_id'],'block_id'=> (string) $keys['block_id'],'updated_at'=> (string) $keys['updated_at'],
+)));
+}
+public function cacheAction(Request $request)
+{
+$parameters = array_merge($request->query->all(), $request->attributes->all());
+if ($request->get('_token') != $this->computeHash($parameters)) {
+throw new AccessDeniedHttpException('Invalid token');
+}
+$manager = $this->getManager($request);
+$page = $manager->getPageById($request->get('page_id'));
+if (!$page) {
+throw new NotFoundHttpException(sprintf('Page not found : %s', $request->get('page_id')));
+}
+$block = $manager->getBlock($request->get('block_id'));
+$blockContext = $this->contextManager->get($block);
+$response = $this->blockRenderer->render($blockContext);
+$response->headers->set('x-sonata-page-not-decorable', true);
+return $response;
+}
+private function getManager(Request $request)
+{
+if (!isset($this->managers[$request->get('manager')])) {
+throw new NotFoundHttpException(sprintf('The manager `%s` does not exist', $request->get('manager')));
+}
+return $this->managers[$request->get('manager')];
+}
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Sonata\BlockBundle\Model\BlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+use Symfony\Component\HttpFoundation\Request;
+interface CmsManagerInterface
+{
+public function findContainer($name, PageInterface $page, BlockInterface $parentContainer = null);
+public function getPageByUrl(SiteInterface $site, $slug);
+public function getPageByRouteName(SiteInterface $site, $routeName);
+public function getPageByPageAlias(SiteInterface $site, $pageAlias);
+public function getInternalRoute(SiteInterface $site, $routeName);
+public function getPageByName(SiteInterface $site, $name);
+public function getPageById($id);
+public function getBlock($id);
+public function getCurrentPage();
+public function setCurrentPage(PageInterface $page);
+public function getBlocks();
+public function getPage(SiteInterface $site, $page);
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+abstract class BaseCmsPageManager implements CmsManagerInterface
+{
+protected $currentPage;
+protected $blocks = array();
+public function getCurrentPage()
+{
+return $this->currentPage;
+}
+public function setCurrentPage(PageInterface $page)
+{
+$this->currentPage = $page;
+}
+public function getBlocks()
+{
+return $this->blocks;
+}
+public function getPageByUrl(SiteInterface $site, $url)
+{
+return $this->getPageBy($site,'url', $url);
+}
+public function getPageByRouteName(SiteInterface $site, $routeName)
+{
+return $this->getPageBy($site,'routeName', $routeName);
+}
+public function getPageByPageAlias(SiteInterface $site, $pageAlias)
+{
+return $this->getPageBy($site,'pageAlias', $pageAlias);
+}
+public function getPageByName(SiteInterface $site, $name)
+{
+return $this->getPageBy($site,'name', $name);
+}
+public function getPageById($id)
+{
+return $this->getPageBy(null,'id', $id);
+}
+abstract protected function getPageBy(SiteInterface $site = null, $fieldName, $value);
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+interface CmsManagerSelectorInterface
+{
+public function retrieve();
+public function isEditor();
+}
+}
+namespace Symfony\Component\Security\Http\Logout
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+interface LogoutHandlerInterface
+{
+public function logout(Request $request, Response $response, TokenInterface $token);
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
+class CmsManagerSelector implements CmsManagerSelectorInterface, LogoutHandlerInterface
+{
+protected $container;
+public function __construct(ContainerInterface $container)
+{
+$this->container = $container;
+}
+public function retrieve()
+{
+if ($this->isEditor()) {
+$manager = $this->container->get('sonata.page.cms.page');
+} else {
+$manager = $this->container->get('sonata.page.cms.snapshot');
+}
+return $manager;
+}
+public function isEditor()
+{
+$request = $this->getRequest();
+$session = $this->getSession();
+$sessionAvailable = ($request && $request->hasPreviousSession()) || $session->isStarted();
+return $sessionAvailable && $session->get('sonata/page/isEditor', false);
+}
+private function getSession()
+{
+return $this->container->get('session');
+}
+private function getRequest()
+{
+if ($this->container->has('request_stack')) {
+return $this->container->get('request_stack')->getCurrentRequest();
+}
+if ($this->container->isScopeActive('request')) {
+return $this->container->get('request');
+}
+return null;
+}
+private function getSecurityContext()
+{
+return $this->container->get('security.context');
+}
+public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
+{
+if ($this->getSecurityContext()->getToken() && $this->getSecurityContext()->isGranted('ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT')) {
+$this->getSession()->set('sonata/page/isEditor', true);
+}
+}
+public function logout(Request $request, Response $response, TokenInterface $token)
+{
+$this->getSession()->set('sonata/page/isEditor', false);
+if ($request->cookies->has('sonata_page_is_editor')) {
+$response->headers->clearCookie('sonata_page_is_editor');
+}
+}
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Sonata\BlockBundle\Model\BlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\PageManagerInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\PageBundle\Model\BlockInteractorInterface;
+class CmsPageManager extends BaseCmsPageManager
+{
+protected $blockInteractor;
+protected $pageManager;
+protected $pageReferences = array();
+protected $pages = array();
+public function __construct(PageManagerInterface $pageManager, BlockInteractorInterface $blockInteractor)
+{
+$this->pageManager = $pageManager;
+$this->blockInteractor = $blockInteractor;
+}
+public function getPage(SiteInterface $site, $page)
+{
+if (is_string($page) && substr($page, 0, 1) =='/') {
+$page = $this->getPageByUrl($site, $page);
+} elseif (is_string($page)) { $page = $this->getPageByRouteName($site, $page);
+} elseif (is_numeric($page)) {
+$page = $this->getPageById($page);
+} elseif (!$page) { $page = $this->getCurrentPage();
+}
+if (!$page instanceof PageInterface) {
+throw new PageNotFoundException('Unable to retrieve the page');
+}
+return $page;
+}
+public function getInternalRoute(SiteInterface $site, $pageName)
+{
+if (substr($pageName, 0, 5) =='error') {
+throw new \RuntimeException(sprintf('Illegal internal route name : %s, an internal page cannot start with `error`', $pageName));
+}
+$routeName = sprintf('_page_internal_%s', $pageName);
+try {
+$page = $this->getPageByRouteName($site, $routeName);
+} catch (PageNotFoundException $e) {
+$page = $this->pageManager->create(array('url'=> null,'routeName'=> $routeName,'name'=> sprintf(sprintf('Internal Page : %s', $pageName)),'decorate'=> false,
+));
+$page->setSite($site);
+$this->pageManager->save($page);
+}
+return $page;
+}
+public function findContainer($code, PageInterface $page, BlockInterface $parentContainer = null)
+{
+$container = null;
+if ($parentContainer) {
+$container = $parentContainer;
+}
+if (!$container && $page->getBlocks()) {
+foreach ($page->getBlocks() as $block) {
+if ($block->getSetting('code') == $code) {
+$container = $block;
+break;
+}
+}
+}
+if (!$container) {
+$container = $this->blockInteractor->createNewContainer(array('enabled'=> true,'page'=> $page,'code'=> $code,'position'=> 1,'parent'=> $parentContainer
+));
+}
+return $container;
+}
+protected function getPageBy(SiteInterface $site = null, $fieldName, $value)
+{
+if ('id'== $fieldName) {
+$id = $value;
+} elseif (isset($this->pageReferences[$fieldName][$value])) {
+$id = $this->pageReferences[$fieldName][$value];
+} else {
+$id = null;
+}
+if (null === $id || !isset($this->pages[$id])) {
+$this->pages[$id] = false;
+$parameters = array(
+$fieldName => $value,
+);
+if ($site) {
+$parameters['site'] = $site->getId();
+}
+$page = $this->pageManager->findOneBy($parameters);
+if (!$page) {
+throw new PageNotFoundException(sprintf('Unable to find the page : %s = %s', $fieldName, $value));
+}
+$this->loadBlocks($page);
+$id = $page->getId();
+if ($fieldName !='id') {
+$this->pageReferences[$fieldName][$value] = $id;
+}
+$this->pages[$id] = $page;
+}
+return $this->pages[$id];
+}
+public function getBlock($id)
+{
+if (!isset($this->blocks[$id])) {
+$this->blocks[$id] = $this->blockInteractor->getBlock($id);
+}
+return $this->blocks[$id];
+}
+private function loadBlocks(PageInterface $page)
+{
+$blocks = $this->blockInteractor->loadPageBlocks($page);
+foreach ($blocks as $block) {
+$this->blocks[$block->getId()] = $block;
+}
+}
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Sonata\BlockBundle\Model\BlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SnapshotManagerInterface;
+use Sonata\PageBundle\Model\SnapshotPageProxy;
+use Sonata\PageBundle\Model\TransformerInterface;
+use Sonata\BlockBundle\Util\RecursiveBlockIterator;
+use Sonata\PageBundle\Model\SiteInterface;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+class CmsSnapshotManager extends BaseCmsPageManager
+{
+protected $snapshotManager;
+protected $transformer;
+protected $pageReferences = array();
+protected $pages = array();
+public function __construct(SnapshotManagerInterface $snapshotManager, TransformerInterface $transformer)
+{
+$this->snapshotManager = $snapshotManager;
+$this->transformer = $transformer;
+}
+public function getPage(SiteInterface $site, $page)
+{
+if (is_string($page) && substr($page, 0, 1) =='/') {
+$page = $this->getPageByUrl($site, $page);
+} elseif (is_string($page)) { $page = $this->getPageByRouteName($site, $page);
+} elseif (is_numeric($page)) {
+$page = $this->getPageById($page);
+} elseif (!$page) { $page = $this->getCurrentPage();
+}
+if (!$page instanceof PageInterface) {
+throw new PageNotFoundException('Unable to retrieve the snapshot');
+}
+return $page;
+}
+public function getInternalRoute(SiteInterface $site, $pageName)
+{
+return $this->getPageByRouteName($site, sprintf('_page_internal_%s', $pageName));
+}
+public function findContainer($code, PageInterface $page, BlockInterface $parentContainer = null)
+{
+$container = null;
+if ($parentContainer) {
+$container = $parentContainer;
+}
+if (!$container && $page->getBlocks()) {
+foreach ($page->getBlocks() as $block) {
+if ($block->getSetting('code') == $code) {
+$container = $block;
+break;
+}
+}
+}
+return $container;
+}
+protected function getPageBy(SiteInterface $site = null, $fieldName, $value)
+{
+if ('id'== $fieldName) {
+$fieldName ='pageId';
+$id = $value;
+} elseif (isset($this->pageReferences[$fieldName][$value])) {
+$id = $this->pageReferences[$fieldName][$value];
+} else {
+$id = null;
+}
+if (null === $id || !isset($this->pages[$id])) {
+$parameters = array($fieldName => $value);
+if ($site) {
+$parameters['site'] = $site->getId();
+}
+$snapshot = $this->snapshotManager->findEnableSnapshot($parameters);
+if (!$snapshot) {
+throw new PageNotFoundException();
+}
+$page = new SnapshotPageProxy($this->snapshotManager, $this->transformer, $snapshot);
+$this->pages[$id] = false;
+if ($page) {
+$this->loadBlocks($page);
+$id = $page->getId();
+if ($fieldName !='id') {
+$this->pageReferences[$fieldName][$value] = $id;
+}
+$this->pages[$id] = $page;
+}
+}
+return $this->pages[$id];
+}
+private function loadBlocks(PageInterface $page)
+{
+$i = new \RecursiveIteratorIterator(new RecursiveBlockIterator($page->getBlocks()), \RecursiveIteratorIterator::SELF_FIRST);
+foreach ($i as $block) {
+$this->blocks[$block->getId()] = $block;
+}
+}
+public function getBlock($id)
+{
+if (isset($this->blocks[$id])) {
+return $this->blocks[$id];
+}
+return null;
+}
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+interface DecoratorStrategyInterface
+{
+public function isDecorable(Request $request, $requestType, Response $response);
+public function isRequestDecorable(Request $request);
+public function isRouteNameDecorable($routeName);
+public function isRouteUriDecorable($uri);
+}
+}
+namespace Sonata\PageBundle\CmsManager
+{
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+class DecoratorStrategy implements DecoratorStrategyInterface
+{
+protected $ignoreRoutes;
+protected $ignoreRoutePatterns;
+protected $ignoreUriPatterns;
+public function __construct(array $ignoreRoutes, array $ignoreRoutePatterns, array $ignoreUriPatterns)
+{
+$this->ignoreRoutes = $ignoreRoutes;
+$this->ignoreRoutePatterns = $ignoreRoutePatterns;
+$this->ignoreUriPatterns = $ignoreUriPatterns;
+}
+public function isDecorable(Request $request, $requestType, Response $response)
+{
+if ($requestType != HttpKernelInterface::MASTER_REQUEST) {
+return false;
+}
+if ((substr($response->headers->get('Content-Type') ? :'text/html', 0, 9)) !='text/html') {
+return false;
+}
+if ($response->headers->get('x-sonata-page-not-decorable', false) === true) {
+return false;
+}
+if ($response->headers->get('x-sonata-page-decorable', false) === true) {
+return true;
+}
+if ($response->getStatusCode() != 200) {
+return false;
+}
+if ($request->headers->get('x-requested-with') =='XMLHttpRequest') {
+return false;
+}
+return $this->isRequestDecorable($request);
+}
+public function isRequestDecorable(Request $request)
+{
+return $this->isRouteNameDecorable($request->get('_route')) && $this->isRouteUriDecorable($request->getPathInfo());
+}
+public function isRouteNameDecorable($routeName)
+{
+if (!$routeName) {
+return false;
+}
+foreach ($this->ignoreRoutes as $route) {
+if ($routeName == $route) {
+return false;
+}
+}
+foreach ($this->ignoreRoutePatterns as $routePattern) {
+if (preg_match(sprintf('#%s#', $routePattern), $routeName)) {
+return false;
+}
+}
+return true;
+}
+public function isRouteUriDecorable($uri)
+{
+foreach ($this->ignoreUriPatterns as $uriPattern) {
+if (preg_match(sprintf('#%s#', $uriPattern), $uri)) {
+return false;
+}
+}
+return true;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\BlockBundle\Model\BlockInterface;
+interface PageBlockInterface extends BlockInterface
+{
+public function getPage();
+public function setPage(PageInterface $page = null);
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\BlockBundle\Model\BaseBlock;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\PageBlockInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+abstract class Block extends BaseBlock implements PageBlockInterface
+{
+protected $page;
+public function addChildren(BlockInterface $child)
+{
+$this->children[] = $child;
+$child->setParent($this);
+if ($child instanceof PageBlockInterface) {
+$child->setPage($this->getPage());
+}
+}
+public function setPage(PageInterface $page = null)
+{
+$this->page = $page;
+}
+public function getPage()
+{
+return $this->page;
+}
+public function disableChildrenLazyLoading()
+{
+if (is_object($this->children)) {
+$this->children->setInitialized(true);
+}
+}
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\PageBundle\Model\Block;
+use Doctrine\Common\Collections\ArrayCollection;
+abstract class BaseBlock extends Block
+{
+public function setId($id)
+{
+$this->id = $id;
+}
+public function __construct()
+{
+$this->children = new ArrayCollection;
+parent::__construct();
+}
+public function prePersist()
+{
+$this->createdAt = new \DateTime;
+$this->updatedAt = new \DateTime;
+}
+public function preUpdate()
+{
+$this->updatedAt = new \DateTime;
+}
+public function setChildren($children)
+{
+$this->children = new ArrayCollection;
+foreach ($children as $child) {
+$this->addChildren($child);
+}
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+interface PageInterface
+{
+const PAGE_ROUTE_CMS_NAME ='page_slug';
+public function getId();
+public function setId($id);
+public function getRouteName();
+public function setRouteName($routeName);
+public function getPageAlias();
+public function setPageAlias($pageAlias);
+public function getType();
+public function setType($type);
+public function setEnabled($enabled);
+public function getEnabled();
+public function setName($name);
+public function getName();
+public function setSlug($slug);
+public function getSlug();
+public function getUrl();
+public function setUrl($url);
+public function setCustomUrl($customUrl);
+public function getCustomUrl();
+public function setMetaKeyword($metaKeyword);
+public function getMetaKeyword();
+public function setMetaDescription($metaDescription);
+public function getMetaDescription();
+public function setJavascript($javascript);
+public function getJavascript();
+public function setStylesheet($stylesheet);
+public function getStylesheet();
+public function setCreatedAt(\DateTime $createdAt = null);
+public function getCreatedAt();
+public function setUpdatedAt(\DateTime $updatedAt = null);
+public function getUpdatedAt();
+public function addChildren(PageInterface $children);
+public function getChildren();
+public function addBlocks(PageBlockInterface $block);
+public function getBlocks();
+public function setTarget(PageInterface $target = null);
+public function getTarget();
+public function setParent(PageInterface $parent = null);
+public function getParent($level = -1);
+public function setTemplateCode($templateCode);
+public function getTemplateCode();
+public function setDecorate($decorate);
+public function getDecorate();
+public function isHybrid();
+public function isDynamic();
+public function isCms();
+public function isInternal();
+public function setPosition($position);
+public function getPosition();
+public function setRequestMethod($method);
+public function getRequestMethod();
+public function setHeaders(array $headers = array());
+public function addHeader($name, $value);
+public function getHeaders();
+public function setParents(array $parents);
+public function getParents();
+public function hasRequestMethod($method);
+public function setSite(SiteInterface $site);
+public function getSite();
+public function setRawHeaders($rawHeaders);
+public function getEdited();
+public function setEdited($edited);
+public function isError();
+public function getTitle();
+public function setTitle($title);
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\PageBundle\Model\PageBlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+abstract class Page implements PageInterface
+{
+protected $createdAt;
+protected $updatedAt;
+protected $routeName;
+protected $pageAlias;
+protected $type;
+protected $name;
+protected $title;
+protected $slug;
+protected $url;
+protected $customUrl;
+protected $requestMethod;
+protected $metaKeyword;
+protected $metaDescription;
+protected $javascript;
+protected $stylesheet;
+protected $rawHeaders;
+protected $headers;
+protected $enabled;
+protected $blocks;
+protected $sources;
+protected $parent;
+protected $parents;
+protected $target;
+protected $children;
+protected $snapshots;
+protected $templateCode;
+protected $position = 1;
+protected $decorate = true;
+protected $site;
+protected $edited;
+protected static $slugifyMethod;
+public static function getSlugifyMethod()
+{
+return self::$slugifyMethod;
+}
+public static function setSlugifyMethod(\Closure $slugifyMethod)
+{
+self::$slugifyMethod = $slugifyMethod;
+}
+public function __construct()
+{
+$this->blocks = array();
+$this->children = array();
+$this->routeName = PageInterface::PAGE_ROUTE_CMS_NAME;
+$this->requestMethod ='GET|POST|HEAD|DELETE|PUT';
+$this->edited = true;
+}
+public function setId($id)
+{
+$this->id = $id;
+}
+public function setRouteName($routeName)
+{
+$this->routeName = $routeName;
+}
+public function getRouteName()
+{
+return $this->routeName;
+}
+public function setPageAlias($pageAlias)
+{
+if (substr($pageAlias, 0, 12) !='_page_alias_') {
+$pageAlias ='_page_alias_'.$pageAlias;
+}
+$this->pageAlias = $pageAlias;
+}
+public function getPageAlias()
+{
+return $this->pageAlias;
+}
+public function setType($type)
+{
+$this->type = $type;
+}
+public function getType()
+{
+return $this->type;
+}
+public function setEnabled($enabled)
+{
+$this->enabled = $enabled;
+}
+public function getEnabled()
+{
+return $this->enabled;
+}
+public function setName($name)
+{
+$this->name = $name;
+}
+public function getName()
+{
+return $this->name;
+}
+public function setSlug($slug)
+{
+$this->slug = self::slugify(trim($slug));
+}
+public function getSlug()
+{
+return $this->slug;
+}
+public function setCustomUrl($customUrl)
+{
+$this->customUrl = $customUrl;
+}
+public function getCustomUrl()
+{
+return $this->customUrl;
+}
+public function setRequestMethod($requestMethod)
+{
+$this->requestMethod = $requestMethod;
+}
+public function getRequestMethod()
+{
+return $this->requestMethod;
+}
+public function setMetaKeyword($metaKeyword)
+{
+$this->metaKeyword = $metaKeyword;
+}
+public function getMetaKeyword()
+{
+return $this->metaKeyword;
+}
+public function setMetaDescription($metaDescription)
+{
+$this->metaDescription = $metaDescription;
+}
+public function getMetaDescription()
+{
+return $this->metaDescription;
+}
+public function setJavascript($javascript)
+{
+$this->javascript = $javascript;
+}
+public function getJavascript()
+{
+return $this->javascript;
+}
+public function setStylesheet($stylesheet)
+{
+$this->stylesheet = $stylesheet;
+}
+public function getStylesheet()
+{
+return $this->stylesheet;
+}
+public function setRawHeaders($rawHeaders)
+{
+$headers = $this->getHeadersAsArray($rawHeaders);
+$this->setHeaders($headers);
+}
+public function getRawHeaders()
+{
+return $this->rawHeaders;
+}
+public function addHeader($name, $header)
+{
+$headers = $this->getHeaders();
+$headers[$name] = $header;
+$this->headers = $headers;
+$this->rawHeaders = $this->getHeadersAsString($headers);
+}
+public function setHeaders(array $headers = array())
+{
+$this->headers = array();
+$this->rawHeaders = null;
+foreach ($headers as $name => $header) {
+$this->addHeader($name, $header);
+}
+}
+public function getHeaders()
+{
+if (null === $this->headers) {
+$rawHeaders = $this->getRawHeaders();
+$this->headers = $this->getHeadersAsArray($rawHeaders);
+}
+return $this->headers;
+}
+public function setCreatedAt(\DateTime $createdAt = null)
+{
+$this->createdAt = $createdAt;
+}
+public function getCreatedAt()
+{
+return $this->createdAt;
+}
+public function setUpdatedAt(\DateTime $updatedAt = null)
+{
+$this->updatedAt = $updatedAt;
+}
+public function getUpdatedAt()
+{
+return $this->updatedAt;
+}
+public function addChildren(PageInterface $children)
+{
+$this->children[] = $children;
+$children->setParent($this);
+}
+public function getChildren()
+{
+return $this->children;
+}
+public function setChildren($children)
+{
+$this->children = $children;
+}
+public function getSnapshot()
+{
+return $this->snapshots && $this->snapshots[0] ? $this->snapshots[0] : null;
+}
+public function getSnapshots()
+{
+return $this->snapshots;
+}
+public function setSnapshots($snapshots)
+{
+$this->snapshots = $snapshots;
+}
+public function getTarget()
+{
+return $this->target;
+}
+public function addSnapshot(SnapshotInterface $snapshot)
+{
+$this->snapshots[] = $snapshot;
+$snapshot->setPage($this);
+}
+public function setTarget(PageInterface $target = null)
+{
+$this->target = $target;
+}
+public function addBlocks(PageBlockInterface $blocs)
+{
+$blocs->setPage($this);
+$this->blocks[] = $blocs;
+}
+public function getBlocks()
+{
+return $this->blocks;
+}
+public function setParent(PageInterface $parent = null)
+{
+$this->parent = $parent;
+}
+public function getParent($level = -1)
+{
+if (-1 === $level) {
+return $this->parent;
+}
+$parents = $this->getParents();
+if ($level < 0) {
+$level = count($parents) + $level;
+}
+return isset($parents[$level]) ? $parents[$level] : null;
+}
+public function setParents(array $parents)
+{
+$this->parents = $parents;
+}
+public function getParents()
+{
+if (!$this->parents) {
+$page = $this;
+$parents = array();
+while ($page->getParent()) {
+$page = $page->getParent();
+$parents[] = $page;
+}
+$this->setParents(array_reverse($parents));
+}
+return $this->parents;
+}
+public function setTemplateCode($templateCode)
+{
+$this->templateCode = $templateCode;
+}
+public function getTemplateCode()
+{
+return $this->templateCode;
+}
+public function disableBlockLazyLoading()
+{
+if (is_object($this->blocks)) {
+$this->blocks->setInitialized(true);
+}
+}
+public function disableChildrenLazyLoading()
+{
+if (is_object($this->children)) {
+$this->children->setInitialized(true);
+}
+}
+public function setDecorate($decorate)
+{
+$this->decorate = $decorate;
+}
+public function getDecorate()
+{
+return $this->decorate;
+}
+public function isHybrid()
+{
+return $this->getRouteName() != self::PAGE_ROUTE_CMS_NAME && !$this->isInternal();
+}
+public function isCms()
+{
+return $this->getRouteName() == self::PAGE_ROUTE_CMS_NAME && !$this->isInternal();
+}
+public function isInternal()
+{
+return substr($this->getRouteName(), 0, 15) =='_page_internal_';
+}
+public function isDynamic()
+{
+return $this->isHybrid() && strpos($this->getUrl(),'{') !== false;
+}
+public function isError()
+{
+return substr($this->getRouteName(), 0, 21) =='_page_internal_error_';
+}
+public function __toString()
+{
+return $this->getName() ?:'-';
+}
+public function setPosition($position)
+{
+$this->position = $position;
+}
+public function getPosition()
+{
+return $this->position;
+}
+public function setUrl($url)
+{
+$this->url = $url;
+}
+public function getUrl()
+{
+return $this->url;
+}
+public static function slugify($text)
+{
+if (!self::$slugifyMethod) {
+$text = preg_replace('~[^\\pL\d]+~u','-', $text);
+$text = trim($text,'-');
+if (function_exists('iconv')) {
+$text = iconv('utf-8','us-ascii//TRANSLIT', $text);
+}
+$text = strtolower($text);
+$text = preg_replace('~[^-\w]+~','', $text);
+return $text;
+}
+return call_user_func(self::$slugifyMethod, $text);
+}
+public function getContainerByCode($code)
+{
+$block = null;
+foreach ($this->getBlocks() as $blockTmp) {
+if (in_array($blockTmp->getType(), array('sonata.page.block.container','sonata.block.service.container')) && $blockTmp->getSetting('code') == $code) {
+$block = $blockTmp;
+break;
+}
+}
+return $block;
+}
+public function getBlocksByType($type)
+{
+$blocks = array();
+foreach ($this->getBlocks() as $block) {
+if ($type == $block->getType()) {
+$blocks[] = $block;
+}
+}
+return $blocks;
+}
+public function hasRequestMethod($method)
+{
+$method = strtoupper($method);
+if (!in_array($method, array('PUT','POST','GET','DELETE','HEAD'))) {
+return false;
+}
+return !$this->getRequestMethod() || false !== strpos($this->getRequestMethod(), $method);
+}
+public function setSite(SiteInterface $site)
+{
+$this->site = $site;
+}
+public function getSite()
+{
+return $this->site;
+}
+public function setEdited($edited)
+{
+$this->edited = $edited;
+}
+public function getEdited()
+{
+return $this->edited;
+}
+public function setTitle($title)
+{
+$this->title = $title;
+}
+public function getTitle()
+{
+return $this->title;
+}
+protected function getHeadersAsArray($rawHeaders)
+{
+$headers = array();
+foreach (explode("\r\n", $rawHeaders) as $header) {
+if (false != strpos($header,':')) {
+list($name, $headerStr) = explode(':', $header, 2);
+$headers[trim($name)] = trim($headerStr);
+}
+}
+return $headers;
+}
+protected function getHeadersAsString(array $headers)
+{
+$rawHeaders = array();
+foreach ($headers as $name => $header) {
+$rawHeaders[] = sprintf('%s: %s', trim($name), trim($header));
+}
+$rawHeaders = implode("\r\n", $rawHeaders);
+return $rawHeaders;
+}
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\PageBundle\Model\Page;
+abstract class BasePage extends Page
+{
+public function __construct()
+{
+parent::__construct();
+$this->children = new \Doctrine\Common\Collections\ArrayCollection();
+$this->blocks = new \Doctrine\Common\Collections\ArrayCollection();
+}
+public function prePersist()
+{
+$this->createdAt = new \DateTime;
+$this->updatedAt = new \DateTime;
+}
+public function preUpdate()
+{
+$this->updatedAt = new \DateTime;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+interface SiteInterface
+{
+public function getId();
+public function setName($name);
+public function getName();
+public function setHost($host);
+public function getHost();
+public function getLocale();
+public function setLocale($locale);
+public function getEnabledFrom();
+public function setEnabledFrom(\DateTime $enabledFrom = null);
+public function getEnabledTo();
+public function setEnabledTo(\DateTime $enabledTo = null);
+public function getIsDefault();
+public function setIsDefault($default);
+public function setRelativePath($path);
+public function getRelativePath();
+public function setEnabled($enabled);
+public function getEnabled();
+public function isEnabled();
+public function setCreatedAt(\DateTime $createdAt = null);
+public function getCreatedAt();
+public function setUpdatedAt(\DateTime $updatedAt = null);
+public function getUpdatedAt();
+public function __toString();
+public function getUrl();
+public function isLocalhost();
+public function setMetaDescription($metaDescription);
+public function getMetaDescription();
+public function setMetaKeywords($metaKeywords);
+public function getMetaKeywords();
+public function setTitle($title);
+public function getTitle();
+}
+}
+namespace Sonata\PageBundle\Model
+{
+abstract class Site implements SiteInterface
+{
+protected $enabled;
+protected $createdAt;
+protected $updatedAt;
+protected $name;
+protected $host;
+protected $relativePath;
+protected $enabledFrom;
+protected $enabledTo;
+protected $isDefault;
+protected $formats = array();
+protected $locale;
+protected $title;
+protected $metaKeywords;
+protected $metaDescription;
+public function setId($id)
+{
+$this->id = $id;
+}
+public function __construct()
+{
+$this->enabled = false;
+}
+public function setEnabled($enabled)
+{
+$this->enabled = $enabled;
+}
+public function getEnabled()
+{
+return $this->enabled;
+}
+public function isEnabled()
+{
+$now = new \DateTime;
+if ($this->getEnabledFrom() instanceof \DateTime && $this->getEnabledFrom()->format('U') > $now->format('U')) {
+return false;
+}
+if ($this->getEnabledTo() instanceof \DateTime && $now->format('U') > $this->getEnabledTo()->format('U')) {
+return false;
+}
+return $this->enabled;
+}
+public function getUrl()
+{
+if ($this->isLocalhost()) {
+return $this->getRelativePath();
+}
+return sprintf('http://%s%s', $this->getHost(), $this->getRelativePath());
+}
+public function isLocalhost()
+{
+return $this->getHost() =='localhost';
+}
+public function setCreatedAt(\DateTime $createdAt = null)
+{
+$this->createdAt = $createdAt;
+}
+public function getCreatedAt()
+{
+return $this->createdAt;
+}
+public function setUpdatedAt(\DateTime $updatedAt = null)
+{
+$this->updatedAt = $updatedAt;
+}
+public function getUpdatedAt()
+{
+return $this->updatedAt;
+}
+public function __toString()
+{
+return $this->getName() ? :'n/a';
+}
+public function setHost($host)
+{
+$this->host = $host;
+}
+public function getHost()
+{
+return $this->host;
+}
+public function setFormats($formats)
+{
+$this->formats = $formats;
+}
+public function getFormats()
+{
+return $this->formats;
+}
+public function setName($name)
+{
+$this->name = $name;
+}
+public function getName()
+{
+return $this->name;
+}
+public function setRelativePath($relativePath)
+{
+$this->relativePath = $relativePath;
+}
+public function getRelativePath()
+{
+return $this->relativePath;
+}
+public function setIsDefault($default)
+{
+$this->isDefault = $default;
+}
+public function getIsDefault()
+{
+return $this->isDefault;
+}
+public function setEnabledFrom(\DateTime $enabledFrom = null)
+{
+$this->enabledFrom = $enabledFrom;
+}
+public function getEnabledFrom()
+{
+return $this->enabledFrom;
+}
+public function setEnabledTo(\DateTime $enabledTo = null)
+{
+$this->enabledTo = $enabledTo;
+}
+public function getEnabledTo()
+{
+return $this->enabledTo;
+}
+public function setLocale($locale)
+{
+$this->locale = $locale;
+}
+public function getLocale()
+{
+return $this->locale;
+}
+public function setMetaDescription($metaDescription)
+{
+$this->metaDescription = $metaDescription;
+}
+public function getMetaDescription()
+{
+return $this->metaDescription;
+}
+public function setMetaKeywords($metaKeywords)
+{
+$this->metaKeywords = $metaKeywords;
+}
+public function getMetaKeywords()
+{
+return $this->metaKeywords;
+}
+public function setTitle($title)
+{
+$this->title = $title;
+}
+public function getTitle()
+{
+return $this->title;
+}
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\PageBundle\Model\Site;
+abstract class BaseSite extends Site
+{
+public function prePersist()
+{
+$this->createdAt = new \DateTime;
+$this->updatedAt = new \DateTime;
+}
+public function preUpdate()
+{
+$this->updatedAt = new \DateTime;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+interface SnapshotInterface
+{
+public function setRouteName($routeName);
+public function getRouteName();
+public function getPageAlias();
+public function setPageAlias($pageAlias);
+public function getType();
+public function setType($type);
+public function setEnabled($enabled);
+public function getEnabled();
+public function setName($name);
+public function getName();
+public function setUrl($url);
+public function getUrl();
+public function setPublicationDateStart(\DateTime $publicationDateStart = null);
+public function getPublicationDateStart();
+public function setPublicationDateEnd(\DateTime $publicationDateEnd = null);
+public function getPublicationDateEnd();
+public function setCreatedAt(\DateTime $createdAt = null);
+public function getCreatedAt();
+public function setUpdatedAt(\DateTime $updatedAt = null);
+public function getUpdatedAt();
+public function setDecorate($decorate);
+public function getDecorate();
+public function isHybrid();
+public function setPosition($position);
+public function getPosition();
+public function setPage(PageInterface $page = null);
+public function getPage();
+public function setSite(SiteInterface $site);
+public function getSite();
+public function getContent();
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SnapshotInterface;
+abstract class Snapshot implements SnapshotInterface
+{
+protected $createdAt;
+protected $updatedAt;
+protected $routeName;
+protected $pageAlias;
+protected $type;
+protected $name;
+protected $url;
+protected $enabled;
+protected $publicationDateStart;
+protected $publicationDateEnd;
+protected $position = 1;
+protected $decorate = true;
+protected $content = array();
+protected $page;
+protected $children = array();
+protected $parent;
+protected $parentId;
+protected $sources;
+protected $target;
+protected $targetId;
+protected $site;
+public function setRouteName($routeName)
+{
+$this->routeName = $routeName;
+}
+public function getRouteName()
+{
+return $this->routeName;
+}
+public function setPageAlias($pageAlias)
+{
+$this->pageAlias = $pageAlias;
+}
+public function getPageAlias()
+{
+return $this->pageAlias;
+}
+public function setType($type)
+{
+$this->type = $type;
+}
+public function getType()
+{
+return $this->type;
+}
+public function setEnabled($enabled)
+{
+$this->enabled = $enabled;
+}
+public function getEnabled()
+{
+return $this->enabled;
+}
+public function setName($name)
+{
+$this->name = $name;
+}
+public function getName()
+{
+return $this->name;
+}
+public function setPublicationDateStart(\DateTime $publicationDateStart = null)
+{
+$this->publicationDateStart = $publicationDateStart;
+}
+public function getPublicationDateStart()
+{
+return $this->publicationDateStart;
+}
+public function setPublicationDateEnd(\DateTime $publicationDateEnd = null)
+{
+$this->publicationDateEnd = $publicationDateEnd;
+}
+public function getPublicationDateEnd()
+{
+return $this->publicationDateEnd;
+}
+public function setCreatedAt(\DateTime $createdAt = null)
+{
+$this->createdAt = $createdAt;
+}
+public function getCreatedAt()
+{
+return $this->createdAt;
+}
+public function setUpdatedAt(\DateTime $updatedAt = null)
+{
+$this->updatedAt = $updatedAt;
+}
+public function getUpdatedAt()
+{
+return $this->updatedAt;
+}
+public function setDecorate($decorate)
+{
+$this->decorate = $decorate;
+}
+public function getDecorate()
+{
+return $this->decorate;
+}
+public function isHybrid()
+{
+return $this->getRouteName() != self::PAGE_ROUTE_CMS_NAME;
+}
+public function __toString()
+{
+return $this->getName()?:'-';
+}
+public function setPosition($position)
+{
+$this->position = $position;
+}
+public function getPosition()
+{
+return $this->position;
+}
+public function setContent($content)
+{
+$this->content = $content;
+}
+public function getContent()
+{
+return $this->content;
+}
+public function setPage(PageInterface $page = null)
+{
+$this->page = $page;
+}
+public function getPage()
+{
+return $this->page;
+}
+public function setChildren($children)
+{
+$this->children = $children;
+}
+public function getChildren()
+{
+return $this->children;
+}
+public function setParent($parent)
+{
+$this->parent = $parent;
+}
+public function getParent()
+{
+return $this->parent;
+}
+public function setParentId($parentId)
+{
+$this->parentId = $parentId;
+}
+public function getParentId()
+{
+return $this->parentId;
+}
+public function setSources($sources)
+{
+$this->sources = $sources;
+}
+public function getSource()
+{
+return $this->sources;
+}
+public function setTarget($target)
+{
+$this->target = $target;
+}
+public function getTarget()
+{
+return $this->target;
+}
+public function setTargetId($targetId)
+{
+$this->targetId = $targetId;
+}
+public function getTargetId()
+{
+return $this->targetId;
+}
+public function setUrl($url)
+{
+$this->url = $url;
+}
+public function getUrl()
+{
+return $this->url;
+}
+public function setSite(SiteInterface $site)
+{
+$this->site = $site;
+}
+public function getSite()
+{
+return $this->site;
+}
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\PageBundle\Model\Snapshot;
+abstract class BaseSnapshot extends Snapshot
+{
+public function prePersist()
+{
+$this->createdAt = new \DateTime;
+$this->updatedAt = new \DateTime;
+}
+public function preUpdate()
+{
+$this->updatedAt = new \DateTime;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+interface BlockInteractorInterface
+{
+public function getBlock($id);
+public function getBlocksById(PageInterface $page);
+public function loadPageBlocks(PageInterface $page);
+public function saveBlocksPosition(array $data = array(), $partial = true);
+public function createNewContainer(array $values = array(), \Closure $alter = null);
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Symfony\Bridge\Doctrine\RegistryInterface;
+use Sonata\BlockBundle\Model\BlockManagerInterface;
+use Sonata\PageBundle\Model\BlockInteractorInterface;
+use Sonata\PageBundle\Model\PageInterface;
+class BlockInteractor implements BlockInteractorInterface
+{
+protected $pageBlocksLoaded = array();
+protected $registry;
+protected $blockManager;
+public function __construct(RegistryInterface $registry, BlockManagerInterface $blockManager)
+{
+$this->blockManager = $blockManager;
+$this->registry = $registry;
+}
+public function getBlock($id)
+{
+$blocks = $this->getEntityManager()->createQueryBuilder()
+->select('b')
+->from($this->blockManager->getClass(),'b')
+->where('b.id = :id')
+->setParameters(array('id'=> $id
+))
+->getQuery()
+->execute();
+return count($blocks) > 0 ? $blocks[0] : false;
+}
+public function getBlocksById(PageInterface $page)
+{
+$blocks = $this->getEntityManager()
+->createQuery(sprintf('SELECT b FROM %s b INDEX BY b.id WHERE b.page = :page ORDER BY b.position ASC', $this->blockManager->getClass()))
+->setParameters(array('page'=> $page->getId()
+))
+->execute();
+return $blocks;
+}
+public function saveBlocksPosition(array $data = array(), $partial = true)
+{
+$em = $this->getEntityManager();
+$em->getConnection()->beginTransaction();
+try {
+foreach ($data as $block) {
+if (!$block['id'] or !array_key_exists('position', $block) or !$block['parent_id'] or !$block['page_id']) {
+continue;
+}
+$this->blockManager->updatePosition($block['id'], $block['position'], $block['parent_id'], $block['page_id'], $partial);
+}
+$em->flush();
+$em->getConnection()->commit();
+} catch (\Exception $e) {
+$em->getConnection()->rollback();
+throw $e;
+}
+return true;
+}
+public function createNewContainer(array $values = array(), \Closure $alter = null)
+{
+$container = $this->blockManager->create();
+$container->setEnabled(isset($values['enabled']) ? $values['enabled'] : true);
+$container->setCreatedAt(new \DateTime);
+$container->setUpdatedAt(new \DateTime);
+$container->setType('sonata.page.block.container');
+if (isset($values['page'])) {
+$container->setPage($values['page']);
+}
+if (isset($values['name'])) {
+$container->setName($values['name']);
+} else {
+$container->setName(isset($values['code']) ? $values['code'] :'No name defined');
+}
+$container->setSettings(array('code'=> isset($values['code']) ? $values['code'] :'no code defined'));
+$container->setPosition(isset($values['position']) ? $values['position'] : 1);
+if (isset($values['parent'])) {
+$container->setParent($values['parent']);
+}
+if ($alter) {
+$alter($container);
+}
+$this->blockManager->save($container);
+return $container;
+}
+public function loadPageBlocks(PageInterface $page)
+{
+if (isset($this->pageBlocksLoaded[$page->getId()])) {
+return array();
+}
+$blocks = $this->getBlocksById($page);
+$page->disableBlockLazyLoading();
+foreach ($blocks as $block) {
+$parent = $block->getParent();
+$block->disableChildrenLazyLoading();
+if (!$parent) {
+$page->addBlocks($block);
+continue;
+}
+$blocks[$block->getParent()->getId()]->disableChildrenLazyLoading();
+$blocks[$block->getParent()->getId()]->addChildren($block);
+}
+$this->pageBlocksLoaded[$page->getId()] = true;
+return $blocks;
+}
+private function getEntityManager()
+{
+return $this->registry->getManagerForClass($this->blockManager->getClass());
+}
+}
+}
+namespace Sonata\CoreBundle\Model
+{
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\ObjectRepository;
+abstract class BaseManager implements ManagerInterface
+{
+protected $registry;
+protected $class;
+public function __construct($class, ManagerRegistry $registry)
+{
+$this->registry = $registry;
+$this->class = $class;
+}
+public function getObjectManager()
+{
+$manager = $this->registry->getManagerForClass($this->class);
+if (!$manager) {
+throw new \RuntimeException(sprintf("Unable to find the mapping information for the class %s."." Please check the 'auto_mapping' option (http://symfony.com/doc/current/reference/configuration/doctrine.html#configuration-overview)"." or add the bundle to the 'mappings' section in the doctrine configuration.", $this->class));
+}
+return $manager;
+}
+public function getClass()
+{
+return $this->class;
+}
+public function findAll()
+{
+return $this->getRepository()->findAll();
+}
+public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+{
+return $this->getRepository()->findBy($criteria, $orderBy, $limit, $offset);
+}
+public function findOneBy(array $criteria, array $orderBy = null)
+{
+return $this->getRepository()->findOneBy($criteria, $orderBy);
+}
+public function find($id)
+{
+return $this->getRepository()->find($id);
+}
+public function create()
+{
+return new $this->class;
+}
+public function save($entity, $andFlush = true)
+{
+$this->checkObject($entity);
+$this->getObjectManager()->persist($entity);
+if ($andFlush) {
+$this->getObjectManager()->flush();
+}
+}
+public function delete($entity, $andFlush = true)
+{
+$this->checkObject($entity);
+$this->getObjectManager()->remove($entity);
+if ($andFlush) {
+$this->getObjectManager()->flush();
+}
+}
+public function getTableName()
+{
+return $this->getObjectManager()->getClassMetadata($this->class)->table['name'];
+}
+protected function getRepository()
+{
+return $this->getObjectManager()->getRepository($this->class);
+}
+protected function checkObject($object)
+{
+if (!$object instanceof $this->class) {
+throw new \InvalidArgumentException(sprintf('Object must be instance of %s, %s given',
+$this->class, is_object($object)? get_class($object) : gettype($object)
+));
+}
+}
+}
+}
+namespace Sonata\CoreBundle\Model
+{
+use Doctrine\ORM\EntityManager;
+abstract class BaseEntityManager extends BaseManager
+{
+public function getConnection()
+{
+return $this->getEntityManager()->getConnection();
+}
+public function getEntityManager()
+{
+return $this->getObjectManager();
+}
+public function __get($name)
+{
+if ($name =='em') {
+return $this->getObjectManager();
+}
+throw new \RuntimeException(sprintf('The property %s does not exists', $name));
+}
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\BlockBundle\Model\BlockManagerInterface;
+use Sonata\CoreBundle\Model\BaseEntityManager;
+use Sonata\DatagridBundle\Pager\Doctrine\Pager;
+use Sonata\DatagridBundle\ProxyQuery\Doctrine\ProxyQuery;
+class BlockManager extends BaseEntityManager implements BlockManagerInterface
+{
+public function save($page, $andFlush = true)
+{
+parent::save($page, $andFlush);
+return $page;
+}
+public function updatePosition($id, $position, $parentId = null, $pageId = null, $partial = true)
+{
+if ($partial) {
+$meta = $this->getEntityManager()->getClassMetadata($this->getClass());
+$block = $this->getEntityManager()->getReference($this->getClass(), $id);
+$pageRelation = $meta->getAssociationMapping('page');
+$page = $this->getEntityManager()->getPartialReference($pageRelation['targetEntity'], $pageId);
+$parentRelation = $meta->getAssociationMapping('parent');
+$parent = $this->getEntityManager()->getPartialReference($parentRelation['targetEntity'], $parentId);
+$block->setPage($page);
+$block->setParent($parent);
+} else {
+$block = $this->find($id);
+}
+$block->setPosition($position);
+$this->getEntityManager()->persist($block);
+return $block;
+}
+public function getPager(array $criteria, $page, $limit = 10, array $sort = array())
+{
+$query = $this->getRepository()
+->createQueryBuilder('b')
+->select('b');
+$parameters = array();
+if (isset($criteria['enabled'])) {
+$query->andWhere('p.enabled = :enabled');
+$parameters['enabled'] = $criteria['enabled'];
+}
+if (isset($criteria['type'])) {
+$query->andWhere('p.type = :type');
+$parameters['type'] = $criteria['type'];
+}
+$query->setParameters($parameters);
+$pager = new Pager();
+$pager->setMaxPerPage($limit);
+$pager->setQuery(new ProxyQuery($query));
+$pager->setPage($page);
+$pager->init();
+return $pager;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\CoreBundle\Model\ManagerInterface;
+use Sonata\CoreBundle\Model\PageableManagerInterface;
+interface PageManagerInterface extends ManagerInterface, PageableManagerInterface
+{
+public function getPageByUrl(SiteInterface $site, $url);
+public function loadPages(SiteInterface $site);
+public function fixUrl(PageInterface $page);
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Sonata\CoreBundle\Model\BaseEntityManager;
+use Sonata\PageBundle\Model\PageManagerInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+use Sonata\PageBundle\Model\Page;
+use Sonata\DatagridBundle\Pager\Doctrine\Pager;
+use Sonata\DatagridBundle\ProxyQuery\Doctrine\ProxyQuery;
+class PageManager extends BaseEntityManager implements PageManagerInterface
+{
+protected $pageDefaults;
+protected $defaults;
+public function __construct($class, ManagerRegistry $registry, array $defaults = array(), array $pageDefaults = array())
+{
+parent::__construct($class, $registry);
+$this->defaults = $defaults;
+$this->pageDefaults = $pageDefaults;
+}
+public function getPageByUrl(SiteInterface $site, $url)
+{
+return $this->findOneBy(array('url'=> $url,'site'=> $site->getId()
+));
+}
+public function getPager(array $criteria, $page, $limit = 10, array $sort = array())
+{
+$query = $this->getRepository()
+->createQueryBuilder('p')
+->select('p');
+$fields = $this->getEntityManager()->getClassMetadata($this->class)->getFieldNames();
+foreach ($sort as $field => $direction) {
+if (!in_array($field, $fields)) {
+throw new \RuntimeException(sprintf("Invalid sort field '%s' in '%s' class", $field, $this->class));
+}
+}
+if (count($sort) == 0) {
+$sort = array('name'=>'ASC');
+}
+foreach ($sort as $field => $direction) {
+$query->orderBy(sprintf('p.%s', $field), strtoupper($direction));
+}
+$parameters = array();
+if (isset($criteria['enabled'])) {
+$query->andWhere('p.enabled = :enabled');
+$parameters['enabled'] = $criteria['enabled'];
+}
+if (isset($criteria['edited'])) {
+$query->andWhere('p.edited = :edited');
+$parameters['edited'] = $criteria['edited'];
+}
+if (isset($criteria['site'])) {
+$query->join('p.site','s');
+$query->andWhere('s.id = :siteId');
+$parameters['siteId'] = $criteria['site'];
+}
+if (isset($criteria['parent'])) {
+$query->join('p.parent','pa');
+$query->andWhere('pa.id = :parentId');
+$parameters['parentId'] = $criteria['parent'];
+}
+if (isset($criteria['root'])) {
+$isRoot = (bool) $criteria['root'];
+if ($isRoot) {
+$query->andWhere('p.parent IS NULL');
+} else {
+$query->andWhere('p.parent IS NOT NULL');
+}
+}
+$query->setParameters($parameters);
+$pager = new Pager();
+$pager->setMaxPerPage($limit);
+$pager->setQuery(new ProxyQuery($query));
+$pager->setPage($page);
+$pager->init();
+return $pager;
+}
+public function create(array $defaults = array())
+{
+$class = $this->getClass();
+$page = new $class;
+if (isset($defaults['routeName']) && isset($this->pageDefaults[$defaults['routeName']])) {
+$defaults = array_merge($this->pageDefaults[$defaults['routeName']], $defaults);
+} else {
+$defaults = array_merge($this->defaults, $defaults);
+}
+foreach ($defaults as $key => $value) {
+$method ='set'. ucfirst($key);
+$page->$method($value);
+}
+return $page;
+}
+public function fixUrl(PageInterface $page)
+{
+if ($page->isInternal()) {
+$page->setUrl(null);
+return;
+}
+if (!$page->isHybrid()) {
+if ($page->getParent()) {
+if (!$page->getSlug()) {
+$page->setSlug(Page::slugify($page->getName()));
+}
+if ($page->getParent()->getUrl() =='/') {
+$base ='/';
+} elseif (substr($page->getParent()->getUrl(), -1) !='/') {
+$base = $page->getParent()->getUrl().'/';
+} else {
+$base = $page->getParent()->getUrl();
+}
+$page->setUrl($base.$page->getSlug()) ;
+} else {
+$page->setSlug(null);
+$page->setUrl('/'.$page->getSlug());
+}
+}
+foreach ($page->getChildren() as $child) {
+$this->fixUrl($child);
+}
+}
+public function save($page, $andFlush = true)
+{
+if (!$page->isHybrid()) {
+$this->fixUrl($page);
+}
+parent::save($page, $andFlush);
+return $page;
+}
+public function loadPages(SiteInterface $site)
+{
+$pages = $this->getEntityManager()
+->createQuery(sprintf('SELECT p FROM %s p INDEX BY p.id WHERE p.site = %d ORDER BY p.position ASC', $this->class, $site->getId()))
+->execute();
+foreach ($pages as $page) {
+$parent = $page->getParent();
+$page->disableChildrenLazyLoading();
+if (!$parent) {
+continue;
+}
+$pages[$parent->getId()]->disableChildrenLazyLoading();
+$pages[$parent->getId()]->addChildren($page);
+}
+return $pages;
+}
+public function getHybridPages(SiteInterface $site)
+{
+return $this->getEntityManager()->createQueryBuilder()
+->select('p')
+->from( $this->class,'p')
+->where('p.routeName <> :routeName and p.site = :site')
+->setParameters(array('routeName'=> PageInterface::PAGE_ROUTE_CMS_NAME,'site'=> $site->getId()
+))
+->getQuery()
+->execute();
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\CoreBundle\Model\ManagerInterface;
+use Sonata\CoreBundle\Model\PageableManagerInterface;
+interface SiteManagerInterface extends ManagerInterface, PageableManagerInterface
+{
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Sonata\CoreBundle\Model\BaseEntityManager;
+use Sonata\PageBundle\Model\SiteManagerInterface;
+use Sonata\DatagridBundle\Pager\Doctrine\Pager;
+use Sonata\DatagridBundle\ProxyQuery\Doctrine\ProxyQuery;
+class SiteManager extends BaseEntityManager implements SiteManagerInterface
+{
+public function save($site, $andFlush = true)
+{
+parent::save($site, $andFlush);
+return $site;
+}
+public function getPager(array $criteria, $page, $limit = 10, array $sort = array())
+{
+$query = $this->getRepository()
+->createQueryBuilder('s')
+->select('s');
+$fields = $this->getEntityManager()->getClassMetadata($this->class)->getFieldNames();
+foreach ($sort as $field => $direction) {
+if (!in_array($field, $fields)) {
+throw new \RuntimeException(sprintf("Invalid sort field '%s' in '%s' class", $field, $this->class));
+}
+}
+if (count($sort) == 0) {
+$sort = array('name'=>'ASC');
+}
+foreach ($sort as $field => $direction) {
+$query->orderBy(sprintf('s.%s', $field), strtoupper($direction));
+}
+$parameters = array();
+if (isset($criteria['enabled'])) {
+$query->andWhere('s.enabled = :enabled');
+$parameters['enabled'] = $criteria['enabled'];
+}
+if (isset($criteria['is_default'])) {
+$query->andWhere('s.isDefault = :isDefault');
+$parameters['isDefault'] = $criteria['is_default'];
+}
+$query->setParameters($parameters);
+$pager = new Pager();
+$pager->setMaxPerPage($limit);
+$pager->setQuery(new ProxyQuery($query));
+$pager->setPage($page);
+$pager->init();
+return $pager;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\CoreBundle\Model\ManagerInterface;
+use Sonata\CoreBundle\Model\PageableManagerInterface;
+interface SnapshotManagerInterface extends ManagerInterface, PageableManagerInterface
+{
+function findEnableSnapshot(array $criteria);
+function enableSnapshots(array $snapshots, \DateTime $date = null);
+function cleanup(PageInterface $page, $keep);
+}
+}
+namespace Sonata\PageBundle\Entity
+{
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Sonata\CoreBundle\Model\BaseEntityManager;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SnapshotManagerInterface;
+use Sonata\PageBundle\Model\SnapshotPageProxy;
+use Sonata\DatagridBundle\Pager\Doctrine\Pager;
+use Sonata\DatagridBundle\ProxyQuery\Doctrine\ProxyQuery;
+class SnapshotManager extends BaseEntityManager implements SnapshotManagerInterface
+{
+protected $children = array();
+protected $templates = array();
+public function __construct($class, ManagerRegistry $registry, $templates = array())
+{
+parent::__construct($class, $registry);
+$this->templates = $templates;
+}
+public function save($snapshot, $andFlush = true)
+{
+parent::save($snapshot);
+return $snapshot;
+}
+public function enableSnapshots(array $snapshots, \DateTime $date = null)
+{
+if (count($snapshots) == 0) {
+return;
+}
+$date = $date ?: new \DateTime();
+$pageIds = $snapshotIds = array();
+foreach ($snapshots as $snapshot) {
+$pageIds[] = $snapshot->getPage()->getId();
+$snapshotIds[] = $snapshot->getId();
+$snapshot->setPublicationDateStart($date);
+$snapshot->setPublicationDateEnd(null);
+$this->getEntityManager()->persist($snapshot);
+}
+$this->getEntityManager()->flush();
+$sql = sprintf("UPDATE %s SET publication_date_end = '%s' WHERE id NOT IN(%s) AND page_id IN (%s)",
+$this->getTableName(),
+$date->format('Y-m-d H:i:s'),
+implode(',', $snapshotIds),
+implode(',', $pageIds)
+);
+$this->getConnection()->query($sql);
+}
+public function findEnableSnapshot(array $criteria)
+{
+$date = new \Datetime;
+$parameters = array('publicationDateStart'=> $date,'publicationDateEnd'=> $date,
+);
+$query = $this->getRepository()
+->createQueryBuilder('s')
+->andWhere('s.publicationDateStart <= :publicationDateStart AND ( s.publicationDateEnd IS NULL OR s.publicationDateEnd >= :publicationDateEnd )');
+if (isset($criteria['site'])) {
+$query->andWhere('s.site = :site');
+$parameters['site'] = $criteria['site'];
+}
+if (isset($criteria['pageId'])) {
+$query->andWhere('s.page = :page');
+$parameters['page'] = $criteria['pageId'];
+} elseif (isset($criteria['url'])) {
+$query->andWhere('s.url = :url');
+$parameters['url'] = $criteria['url'];
+} elseif (isset($criteria['routeName'])) {
+$query->andWhere('s.routeName = :routeName');
+$parameters['routeName'] = $criteria['routeName'];
+} elseif (isset($criteria['pageAlias'])) {
+$query->andWhere('s.pageAlias = :pageAlias');
+$parameters['pageAlias'] = $criteria['pageAlias'];
+} elseif (isset($criteria['name'])) {
+$query->andWhere('s.name = :name');
+$parameters['name'] = $criteria['name'];
+} else {
+throw new \RuntimeException('please provide a `pageId`, `url`, `routeName` or `name` as criteria key');
+}
+$query->setMaxResults(1);
+$query->setParameters($parameters);
+return $query->getQuery()->getOneOrNullResult();
+}
+public function getPageByName($routeName)
+{
+$snapshots = $this->getEntityManager()->createQueryBuilder()
+->select('s')
+->from($this->class,'s')
+->where('s.routeName = :routeName')
+->setParameters(array('routeName'=> $routeName
+))
+->getQuery()
+->execute();
+$snapshot = count($snapshots) > 0 ? $snapshots[0] : false;
+if ($snapshot) {
+return new SnapshotPageProxy($this, $snapshot);
+}
+return false;
+}
+public function setTemplates($templates)
+{
+$this->templates = $templates;
+}
+public function getTemplates()
+{
+return $this->templates;
+}
+public function getTemplate($code)
+{
+if (!isset($this->templates[$code])) {
+throw new \RunTimeException(sprintf('No template references with the code : %s', $code));
+}
+return $this->templates[$code];
+}
+public function cleanup(PageInterface $page, $keep)
+{
+if (!is_numeric($keep)) {
+throw new \RuntimeException(sprintf('Please provide an integer value, %s given', gettype($keep)));
+}
+$tableName = $this->getTableName();
+$platform = $this->getConnection()->getDatabasePlatform()->getName();
+if ('mysql'=== $platform) {
+return $this->getConnection()->exec(sprintf('DELETE FROM %s
+                WHERE
+                    page_id = %d
+                    AND id NOT IN (
+                        SELECT id
+                        FROM (
+                            SELECT id, publication_date_end
+                            FROM %s
+                            WHERE
+                                page_id = %d
+                            ORDER BY
+                                publication_date_end IS NULL DESC,
+                                publication_date_end DESC
+                            LIMIT %d
+                        ) AS table_alias
+                )',
+$tableName,
+$page->getId(),
+$tableName,
+$page->getId(),
+$keep
+));
+}
+if ('oracle'=== $platform) {
+return $this->getConnection()->exec(sprintf('DELETE FROM %s
+                WHERE
+                    page_id = %d
+                    AND id NOT IN (
+                        SELECT id
+                        FROM (
+                            SELECT id, publication_date_end
+                            FROM %s
+                            WHERE
+                                page_id = %d
+                                AND rownum <= %d
+                            ORDER BY publication_date_end DESC
+                        ) AS table_alias
+                )',
+$tableName,
+$page->getId(),
+$tableName,
+$page->getId(),
+$keep
+));
+}
+throw new \RuntimeException(sprintf('The %s database platform has not been tested yet. Please report us if it works and feel free to create a pull request to handle it ;-)', $platform));
+}
+public function getPager(array $criteria, $page, $limit = 10, array $sort = array())
+{
+$query = $this->getRepository()
+->createQueryBuilder('s')
+->select('s');
+$parameters = array();
+if (isset($criteria['enabled'])) {
+$query->andWhere('s.enabled = :enabled');
+$parameters['enabled'] = $criteria['enabled'];
+}
+if (isset($criteria['site'])) {
+$query->join('s.site','si');
+$query->andWhere('si.id = :siteId');
+$parameters['siteId'] = $criteria['site'];
+}
+if (isset($criteria['page_id'])) {
+$query->join('s.page','p');
+$query->andWhere('p.id = :pageId');
+$parameters['pageId'] = $criteria['page_id'];
+}
+if (isset($criteria['parent'])) {
+$query->join('s.parent','pa');
+$query->andWhere('pa.id = :parentId');
+$parameters['parentId'] = $criteria['parent'];
+}
+if (isset($criteria['root'])) {
+$isRoot = (bool) $criteria['root'];
+if ($isRoot) {
+$query->andWhere('s.parent IS NULL');
+} else {
+$query->andWhere('s.parent IS NOT NULL');
+}
+}
+$query->setParameters($parameters);
+$pager = new Pager();
+$pager->setMaxPerPage($limit);
+$pager->setQuery(new ProxyQuery($query));
+$pager->setPage($page);
+$pager->init();
+return $pager;
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SnapshotInterface;
+interface TransformerInterface
+{
+public function load(SnapshotInterface $snapshot);
+public function create(PageInterface $page);
+public function getChildren(PageInterface $page);
+public function loadBlock(array $content, PageInterface $page);
+}}
+namespace Sonata\PageBundle\Entity
+{
+use Doctrine\ORM\EntityManagerInterface;
+use Sonata\BlockBundle\Model\BlockManagerInterface;
+use Sonata\PageBundle\Model\PageManagerInterface;
+use Sonata\PageBundle\Model\SnapshotManagerInterface;
+use Sonata\PageBundle\Model\TransformerInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Model\SnapshotInterface;
+use Sonata\PageBundle\Model\SnapshotPageProxy;
+use Symfony\Bridge\Doctrine\RegistryInterface;
+class Transformer implements TransformerInterface
+{
+protected $snapshotManager;
+protected $pageManager;
+protected $blockManager;
+protected $children = array();
+public function __construct(SnapshotManagerInterface $snapshotManager, PageManagerInterface $pageManager, BlockManagerInterface $blockManager, RegistryInterface $registry)
+{
+$this->snapshotManager = $snapshotManager;
+$this->pageManager = $pageManager;
+$this->blockManager = $blockManager;
+$this->registry = $registry;
+}
+public function create(PageInterface $page)
+{
+$snapshot = $this->snapshotManager->create();
+$snapshot->setPage($page);
+$snapshot->setUrl($page->getUrl());
+$snapshot->setEnabled($page->getEnabled());
+$snapshot->setRouteName($page->getRouteName());
+$snapshot->setPageAlias($page->getPageAlias());
+$snapshot->setType($page->getType());
+$snapshot->setName($page->getName());
+$snapshot->setPosition($page->getPosition());
+$snapshot->setDecorate($page->getDecorate());
+if (!$page->getSite()) {
+throw new \RuntimeException(sprintf('No site linked to the page.id=%s', $page->getId()));
+}
+$snapshot->setSite($page->getSite());
+if ($page->getParent()) {
+$snapshot->setParentId($page->getParent()->getId());
+}
+if ($page->getTarget()) {
+$snapshot->setTargetId($page->getTarget()->getId());
+}
+$content = array();
+$content['id'] = $page->getId();
+$content['name'] = $page->getName();
+$content['javascript'] = $page->getJavascript();
+$content['stylesheet'] = $page->getStylesheet();
+$content['raw_headers'] = $page->getRawHeaders();
+$content['title'] = $page->getTitle();
+$content['meta_description'] = $page->getMetaDescription();
+$content['meta_keyword'] = $page->getMetaKeyword();
+$content['template_code'] = $page->getTemplateCode();
+$content['request_method'] = $page->getRequestMethod();
+$content['created_at'] = $page->getCreatedAt()->format('U');
+$content['updated_at'] = $page->getUpdatedAt()->format('U');
+$content['slug'] = $page->getSlug();
+$content['parent_id'] = $page->getParent() ? $page->getParent()->getId() : null;
+$content['target_id'] = $page->getTarget() ? $page->getTarget()->getId() : null;
+$content['blocks'] = array();
+foreach ($page->getBlocks() as $block) {
+if ($block->getParent()) { continue;
+}
+$content['blocks'][] = $this->createBlocks($block);
+}
+$snapshot->setContent($content);
+return $snapshot;
+}
+public function load(SnapshotInterface $snapshot)
+{
+$page = $this->pageManager->create();
+$page->setRouteName($snapshot->getRouteName());
+$page->setPageAlias($snapshot->getPageAlias());
+$page->setType($snapshot->getType());
+$page->setCustomUrl($snapshot->getUrl());
+$page->setUrl($snapshot->getUrl());
+$page->setPosition($snapshot->getPosition());
+$page->setDecorate($snapshot->getDecorate());
+$page->setSite($snapshot->getSite());
+$page->setEnabled($snapshot->getEnabled());
+$content = $this->fixPageContent($snapshot->getContent());
+$page->setId($content['id']);
+$page->setJavascript($content['javascript']);
+$page->setStylesheet($content['stylesheet']);
+$page->setRawHeaders($content['raw_headers']);
+$page->setTitle($content['title']);
+$page->setMetaDescription($content['meta_description']);
+$page->setMetaKeyword($content['meta_keyword']);
+$page->setName($content['name']);
+$page->setSlug($content['slug']);
+$page->setTemplateCode($content['template_code']);
+$page->setRequestMethod($content['request_method']);
+$createdAt = new \DateTime;
+$createdAt->setTimestamp($content['created_at']);
+$page->setCreatedAt($createdAt);
+$updatedAt = new \DateTime;
+$updatedAt->setTimestamp($content['updated_at']);
+$page->setUpdatedAt($updatedAt);
+return $page;
+}
+protected function fixPageContent(array $content)
+{
+if (!array_key_exists('title', $content)) {
+$content['title'] = null;
+}
+return $content;
+}
+protected function fixBlockContent(array $content)
+{
+if (!array_key_exists('name', $content)) {
+$content['name'] = null;
+}
+return $content;
+}
+public function loadBlock(array $content, PageInterface $page)
+{
+$block = $this->blockManager->create();
+$content = $this->fixBlockContent($content);
+$block->setPage($page);
+$block->setId($content['id']);
+$block->setName($content['name']);
+$block->setEnabled($content['enabled']);
+$block->setPosition($content['position']);
+$block->setSettings($content['settings']);
+$block->setType($content['type']);
+$createdAt = new \DateTime;
+$createdAt->setTimestamp($content['created_at']);
+$block->setCreatedAt($createdAt);
+$updatedAt = new \DateTime;
+$updatedAt->setTimestamp($content['updated_at']);
+$block->setUpdatedAt($updatedAt);
+foreach ($content['blocks'] as $child) {
+$block->addChildren($this->loadBlock($child, $page));
+}
+return $block;
+}
+protected function createBlocks(BlockInterface $block)
+{
+$content = array();
+$content['id'] = $block->getId();
+$content['name'] = $block->getName();
+$content['enabled'] = $block->getEnabled();
+$content['position'] = $block->getPosition();
+$content['settings'] = $block->getSettings();
+$content['type'] = $block->getType();
+$content['created_at'] = $block->getCreatedAt()->format('U');
+$content['updated_at'] = $block->getUpdatedAt()->format('U');
+$content['blocks'] = array();
+foreach ($block->getChildren() as $child) {
+$content['blocks'][] = $this->createBlocks($child);
+}
+return $content;
+}
+public function getChildren(PageInterface $parent)
+{
+if (!isset($this->children[$parent->getId()])) {
+$date = new \Datetime;
+$parameters = array('publicationDateStart'=> $date,'publicationDateEnd'=> $date,'parentId'=> $parent->getId(),
+);
+$manager = $this->registry->getManagerForClass($this->snapshotManager->getClass());
+if (!$manager instanceof EntityManagerInterface) {
+throw new \RuntimeException("Invalid entity manager type");
+}
+$snapshots = $manager->createQueryBuilder()
+->select('s')
+->from($this->snapshotManager->getClass(),'s')
+->where('s.parentId = :parentId and s.enabled = 1')
+->andWhere('s.publicationDateStart <= :publicationDateStart AND ( s.publicationDateEnd IS NULL OR s.publicationDateEnd >= :publicationDateEnd )')
+->orderBy('s.position')
+->setParameters($parameters)
+->getQuery()
+->execute();
+$pages = array();
+foreach ($snapshots as $snapshot) {
+$page = new SnapshotPageProxy($this->snapshotManager, $this, $snapshot);
+$pages[$page->getId()] = $page;
+}
+$this->children[$parent->getId()] = new \Doctrine\Common\Collections\ArrayCollection($pages);
+}
+return $this->children[$parent->getId()];
+}
+}}
+namespace Sonata\PageBundle\Generator
+{
+class Mustache
+{
+public static function replace($string, array $parameters)
+{
+$replacer = function ($match) use ($parameters) {
+return isset($parameters[$match[1]]) ? $parameters[$match[1]] : $match[0];
+};
+return preg_replace_callback('/{{\s*(.+?)\s*}}/', $replacer, $string);
+}
+}
+}
+namespace Sonata\PageBundle\Listener
+{
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+use Sonata\PageBundle\Exception\InternalErrorException;
+use Sonata\PageBundle\Page\PageServiceManagerInterface;
+use Sonata\PageBundle\CmsManager\DecoratorStrategyInterface;
+use Symfony\Component\Templating\EngineInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpFoundation\Response;
+class ExceptionListener
+{
+protected $siteSelector;
+protected $cmsManagerSelector;
+protected $debug;
+protected $templating;
+protected $pageServiceManager;
+protected $decoratorStrategy;
+protected $httpErrorCodes;
+protected $logger;
+protected $status;
+public function __construct(SiteSelectorInterface $siteSelector,
+CmsManagerSelectorInterface $cmsManagerSelector,
+$debug,
+EngineInterface $templating,
+PageServiceManagerInterface $pageServiceManager,
+DecoratorStrategyInterface $decoratorStrategy,
+array $httpErrorCodes,
+LoggerInterface $logger = null)
+{
+$this->siteSelector = $siteSelector;
+$this->cmsManagerSelector = $cmsManagerSelector;
+$this->debug = $debug;
+$this->templating = $templating;
+$this->pageServiceManager = $pageServiceManager;
+$this->decoratorStrategy = $decoratorStrategy;
+$this->httpErrorCodes = $httpErrorCodes;
+$this->logger = $logger;
+}
+public function getHttpErrorCodes()
+{
+return $this->httpErrorCodes;
+}
+public function hasErrorCode($statusCode)
+{
+return array_key_exists($statusCode, $this->httpErrorCodes);
+}
+public function getErrorCodePage($statusCode)
+{
+if (!$this->hasErrorCode($statusCode)) {
+throw new InternalErrorException(sprintf('There is not page configured to handle the status code %d', $statusCode));
+}
+$cms = $this->cmsManagerSelector->retrieve();
+$site = $this->siteSelector->retrieve();
+if (!$site) {
+throw new \RuntimeException('No site available');
+}
+return $cms->getPageByRouteName($site, $this->httpErrorCodes[$statusCode]);
+}
+public function onKernelException(GetResponseForExceptionEvent $event)
+{
+if ($event->getException() instanceof NotFoundHttpException && $this->cmsManagerSelector->isEditor()) {
+$pathInfo = $event->getRequest()->getPathInfo();
+$creatable = !$event->getRequest()->get('_route') && $this->decoratorStrategy->isRouteUriDecorable($pathInfo);
+if ($creatable) {
+$response = new Response($this->templating->render('SonataPageBundle:Page:create.html.twig', array('pathInfo'=> $pathInfo,'site'=> $this->siteSelector->retrieve(),'creatable'=> $creatable
+)), 404);
+$event->setResponse($response);
+$event->stopPropagation();
+return;
+}
+}
+if ($event->getException() instanceof InternalErrorException) {
+$this->handleInternalError($event);
+} else {
+$this->handleNativeError($event);
+}
+}
+private function handleInternalError(GetResponseForExceptionEvent $event)
+{
+$content = $this->templating->render('SonataPageBundle::internal_error.html.twig', array('exception'=> $event->getException()
+));
+$event->setResponse(new Response($content, 500));
+}
+private function handleNativeError(GetResponseForExceptionEvent $event)
+{
+if (true === $this->debug) {
+return;
+}
+if (true === $this->status) {
+return;
+}
+$this->status = true;
+$exception = $event->getException();
+$statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : 500;
+$cmsManager = $this->cmsManagerSelector->retrieve();
+if ($event->getRequest()->get('_route') && !$this->decoratorStrategy->isRouteNameDecorable($event->getRequest()->get('_route'))) {
+return;
+}
+if (!$this->decoratorStrategy->isRouteUriDecorable($event->getRequest()->getPathInfo())) {
+return;
+}
+if (!$this->hasErrorCode($statusCode)) {
+return;
+}
+$message = sprintf('%s: %s (uncaught exception) at %s line %s', get_class($exception), $exception->getMessage(), $exception->getFile(), $exception->getLine());
+$this->logException($exception, $exception, $message);
+try {
+$page = $this->getErrorCodePage($statusCode);
+$cmsManager->setCurrentPage($page);
+if ($page->getSite()->getLocale() !== $event->getRequest()->getLocale()) {
+$event->getRequest()->setLocale($page->getSite()->getLocale());
+}
+$response = $this->pageServiceManager->execute($page, $event->getRequest(), array(), new Response('', $statusCode));
+} catch (\Exception $e) {
+$this->logException($exception, $e);
+$event->setException($e);
+$this->handleInternalError($event);
+return;
+}
+$event->setResponse($response);
+}
+private function logException(\Exception $originalException, \Exception $generatedException, $message = null)
+{
+if (!$message) {
+$message = sprintf('Exception thrown when handling an exception (%s: %s)', get_class($generatedException), $generatedException->getMessage());
+}
+if (null !== $this->logger) {
+if (!$originalException instanceof HttpExceptionInterface || $originalException->getStatusCode() >= 500) {
+$this->logger->crit($message, array('exception'=> $originalException ));
+} else {
+$this->logger->err($message, array('exception'=> $originalException ));
+}
+} else {
+error_log($message);
+}
+}
+}
+}
+namespace Sonata\PageBundle\Listener
+{
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+use Sonata\PageBundle\Exception\InternalErrorException;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\PageBundle\CmsManager\DecoratorStrategyInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpFoundation\Request;
+class RequestListener
+{
+protected $cmsSelector;
+protected $siteSelector;
+protected $decoratorStrategy;
+public function __construct(CmsManagerSelectorInterface $cmsSelector, SiteSelectorInterface $siteSelector, DecoratorStrategyInterface $decoratorStrategy)
+{
+$this->cmsSelector = $cmsSelector;
+$this->siteSelector = $siteSelector;
+$this->decoratorStrategy = $decoratorStrategy;
+}
+public function onCoreRequest(GetResponseEvent $event)
+{
+$request = $event->getRequest();
+$cms = $this->cmsSelector->retrieve();
+if (!$cms) {
+throw new InternalErrorException('No CMS Manager available');
+}
+if ($request->get('_route') == PageInterface::PAGE_ROUTE_CMS_NAME) {
+return;
+}
+if (!$this->decoratorStrategy->isRequestDecorable($request)) {
+return;
+}
+$site = $this->siteSelector->retrieve();
+if (!$site) {
+throw new InternalErrorException('No site available for the current request with uri '.htmlspecialchars($request->getUri(), ENT_QUOTES));
+}
+if ($site->getLocale() && $site->getLocale() != $request->get('_locale')) {
+throw new PageNotFoundException(sprintf('Invalid locale - site.locale=%s - request._locale=%s', $site->getLocale(), $request->get('_locale')));
+}
+try {
+$page = $cms->getPageByRouteName($site, $request->get('_route'));
+if (!$page->getEnabled() && !$this->cmsSelector->isEditor()) {
+throw new PageNotFoundException(sprintf('The page is not enabled : id=%s', $page->getId()));
+}
+$cms->setCurrentPage($page);
+} catch (PageNotFoundException $e) {
+return;
+}
+}
+}
+}
+namespace Sonata\PageBundle\Listener
+{
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Sonata\PageBundle\Page\PageServiceManagerInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Sonata\PageBundle\Exception\InternalErrorException;
+use Sonata\PageBundle\CmsManager\DecoratorStrategyInterface;
+class ResponseListener
+{
+protected $cmsSelector;
+protected $pageServiceManager;
+protected $decoratorStrategy;
+protected $templating;
+public function __construct(CmsManagerSelectorInterface $cmsSelector,
+PageServiceManagerInterface $pageServiceManager,
+DecoratorStrategyInterface $decoratorStrategy,
+EngineInterface $templating)
+{
+$this->cmsSelector = $cmsSelector;
+$this->pageServiceManager = $pageServiceManager;
+$this->decoratorStrategy = $decoratorStrategy;
+$this->templating = $templating;
+}
+public function onCoreResponse(FilterResponseEvent $event)
+{
+$cms = $this->cmsSelector->retrieve();
+$response = $event->getResponse();
+$request = $event->getRequest();
+if ($this->cmsSelector->isEditor()) {
+$response->setPrivate();
+if (!$request->cookies->has('sonata_page_is_editor')) {
+$response->headers->setCookie(new Cookie('sonata_page_is_editor', 1));
+}
+}
+$page = $cms->getCurrentPage();
+if ($page && $response->isRedirection() && $this->cmsSelector->isEditor() && !$request->get('_sonata_page_skip')) {
+$response = new Response($this->templating->render('SonataPageBundle:Page:redirect.html.twig', array('response'=> $response,'page'=> $page,
+)));
+$response->setPrivate();
+$event->setResponse($response);
+return;
+}
+if (!$this->decoratorStrategy->isDecorable($event->getRequest(), $event->getRequestType(), $response)) {
+return;
+}
+if (!$this->cmsSelector->isEditor() && $request->cookies->has('sonata_page_is_editor')) {
+$response->headers->clearCookie('sonata_page_is_editor');
+}
+if (!$page) {
+throw new InternalErrorException('No page instance available for the url, run the sonata:page:update-core-routes and sonata:page:create-snapshots commands');
+}
+if (!$page->isHybrid() || !$page->getDecorate()) {
+return;
+}
+$parameters = array('content'=> $response->getContent()
+);
+$response = $this->pageServiceManager->execute($page, $request, $parameters, $response);
+if (!$this->cmsSelector->isEditor() && $page->isCms()) {
+$response->setTtl($page->getTtl());
+}
+$event->setResponse($response);
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+class SnapshotChildrenCollection implements \Countable, \IteratorAggregate, \ArrayAccess
+{
+protected $transformer;
+protected $page;
+protected $collection;
+public function __construct(TransformerInterface $transformer, PageInterface $page)
+{
+$this->transformer = $transformer;
+$this->page = $page;
+}
+private function load()
+{
+if ($this->collection == null) {
+$this->collection = $this->transformer->getChildren($this->page);
+}
+}
+public function offsetUnset($offset)
+{
+$this->load();
+return $this->collection->offsetUnset($offset);
+}
+public function offsetSet($offset, $value)
+{
+$this->load();
+return $this->collection->offsetSet($offset, $value);
+}
+public function offsetGet($offset)
+{
+$this->load();
+return $this->collection->offsetGet($offset);
+}
+public function offsetExists($offset)
+{
+$this->load();
+return $this->collection->offsetExists($offset);
+}
+public function getIterator()
+{
+$this->load();
+return $this->collection->getIterator();
+}
+public function count()
+{
+$this->load();
+return $this->collection->count();
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+use Sonata\PageBundle\Model\PageBlockInterface;
+use Serializable;
+class SnapshotPageProxy implements PageInterface, Serializable
+{
+private $manager;
+private $snapshot;
+private $page;
+private $target;
+private $parents;
+public function __construct(SnapshotManagerInterface $manager, TransformerInterface $transformer, SnapshotInterface $snapshot)
+{
+$this->manager = $manager;
+$this->snapshot = $snapshot;
+$this->transformer = $transformer;
+}
+public function getPage()
+{
+$this->load();
+return $this->page;
+}
+private function load()
+{
+if (!$this->page && $this->transformer) {
+$this->page = $this->transformer->load($this->snapshot);
+}
+}
+public function __call($method, $arguments)
+{
+return call_user_func_array(array($this->getPage(), $method), $arguments);
+}
+public function addChildren(PageInterface $children)
+{
+$this->getPage()->addChildren($children);
+}
+public function setHeaders(array $headers = array())
+{
+$this->getPage()->setHeaders($headers);
+}
+public function addHeader($name, $value)
+{
+$this->getPage()->addHeader($name, $value);
+}
+public function getHeaders()
+{
+return $this->getPage()->getHeaders();
+}
+public function getChildren()
+{
+if (!$this->getPage()->getChildren()->count()) {
+$this->getPage()->setChildren(new SnapshotChildrenCollection($this->transformer, $this->getPage()));
+}
+return $this->getPage()->getChildren();
+}
+public function addBlocks(PageBlockInterface $block)
+{
+$this->getPage()->addBlocks($block);
+}
+public function getBlocks()
+{
+if (!count($this->getPage()->getBlocks())) {
+$content = $this->snapshot->getContent();
+foreach ($content['blocks'] as $block) {
+$b = $this->transformer->loadBlock($block, $this);
+$this->addBlocks($b);
+$b->setPage($this);
+}
+}
+return $this->getPage()->getBlocks();
+}
+public function setTarget(PageInterface $target = null)
+{
+$this->target = $target;
+}
+public function getTarget()
+{
+if ($this->target === null) {
+$content = $this->snapshot->getContent();
+if (isset($content['target_id'])) {
+$target = $this->manager->findEnableSnapshot(array('pageId'=> $content['target_id']
+));
+if ($target) {
+$this->setTarget(new SnapshotPageProxy($this->manager, $this->transformer, $target));
+} else {
+$this->target = false;
+}
+}
+}
+return $this->target ?: null;
+}
+public function getParent($level = -1)
+{
+$parents = $this->getParents();
+if ($level < 0) {
+$level = count($parents) + $level;
+}
+return isset($parents[$level]) ? $parents[$level] : null;
+}
+public function setParents(array $parents)
+{
+$this->parents = $parents;
+}
+public function getParents()
+{
+if (!$this->parents) {
+$parents = array();
+$snapshot = $this->snapshot;
+while ($snapshot) {
+$content = $snapshot->getContent();
+if (!$content['parent_id']) {
+break;
+}
+$snapshot = $this->manager->findEnableSnapshot(array('pageId'=> $content['parent_id']
+));
+if (!$snapshot) {
+break;
+}
+$parents[] = new SnapshotPageProxy($this->manager, $this->transformer, $snapshot);
+}
+$this->setParents(array_reverse($parents));
+}
+return $this->parents;
+}
+public function setParent(PageInterface $parent = null)
+{
+$this->getPage()->setParent($parent);
+}
+public function setTemplateCode($templateCode)
+{
+$this->getPage()->setTemplateCode($templateCode);
+}
+public function getTemplateCode()
+{
+return $this->getPage()->getTemplateCode();
+}
+public function setDecorate($decorate)
+{
+$this->getPage()->setDecorate($decorate);
+}
+public function getDecorate()
+{
+return $this->getPage()->getDecorate();
+}
+public function isHybrid()
+{
+return $this->getPage()->isHybrid();
+}
+public function setPosition($position)
+{
+$this->getPage()->setPosition($position);
+}
+public function getPosition()
+{
+return $this->getPage()->getPosition();
+}
+public function setRequestMethod($method)
+{
+$this->getPage()->setRequestMethod($method);
+}
+public function getRequestMethod()
+{
+return $this->getPage()->getRequestMethod();
+}
+public function getId()
+{
+return $this->getPage()->getId();
+}
+public function setId($id)
+{
+$this->getPage()->setId($id);
+}
+public function getRouteName()
+{
+return $this->getPage()->getRouteName();
+}
+public function setRouteName($routeName)
+{
+$this->getPage()->setRouteName($routeName);
+}
+public function setEnabled($enabled)
+{
+$this->getPage()->setEnabled($enabled);
+}
+public function getEnabled()
+{
+return $this->getPage()->getEnabled();
+}
+public function setName($name)
+{
+$this->getPage()->setName($name);
+}
+public function getName()
+{
+return $this->getPage()->getName();
+}
+public function setSlug($slug)
+{
+$this->getPage()->setSlug($slug);
+}
+public function getSlug()
+{
+return $this->getPage()->getSlug();
+}
+public function setUrl($url)
+{
+$this->getPage()->setUrl($url);
+}
+public function getUrl()
+{
+return $this->getPage()->getUrl();
+}
+public function setCustomUrl($customUrl)
+{
+$this->getPage()->setCustomUrl($customUrl);
+}
+public function getCustomUrl()
+{
+return $this->getPage()->getCustomUrl();
+}
+public function setMetaKeyword($metaKeyword)
+{
+$this->getPage()->setMetaKeyword($metaKeyword);
+}
+public function getMetaKeyword()
+{
+return $this->getPage()->getMetaKeyword();
+}
+public function setMetaDescription($metaDescription)
+{
+$this->getPage()->setMetaDescription($metaDescription);
+}
+public function getMetaDescription()
+{
+return $this->getPage()->getMetaDescription();
+}
+public function setJavascript($javascript)
+{
+$this->getPage()->setJavascript($javascript);
+}
+public function getJavascript()
+{
+return $this->getPage()->getJavascript();
+}
+public function setStylesheet($stylesheet)
+{
+$this->getPage()->setStylesheet($stylesheet);
+}
+public function getStylesheet()
+{
+return $this->getPage()->getStylesheet();
+}
+public function getPageAlias()
+{
+return $this->getPage()->getPageAlias();
+}
+public function setPageAlias($pageAlias)
+{
+return $this->getPage()->setPageAlias($pageAlias);
+}
+public function setCreatedAt(\DateTime $createdAt = null)
+{
+$this->getPage()->setCreatedAt($createdAt);
+}
+public function getCreatedAt()
+{
+return $this->getPage()->getCreatedAt();
+}
+public function setUpdatedAt(\DateTime $updatedAt = null)
+{
+$this->getPage()->setUpdatedAt($updatedAt);
+}
+public function getUpdatedAt()
+{
+return $this->getPage()->getUpdatedAt();
+}
+public function isDynamic()
+{
+return $this->getPage()->isDynamic();
+}
+public function isCms()
+{
+return $this->getPage()->isCms();
+}
+public function isInternal()
+{
+return $this->getPage()->isInternal();
+}
+public function hasRequestMethod($method)
+{
+return $this->getPage()->hasRequestMethod($method);
+}
+public function setSite(SiteInterface $site)
+{
+$this->getPage()->setSite($site);
+}
+public function getSite()
+{
+return $this->getPage()->getSite();
+}
+public function setRawHeaders($headers)
+{
+$this->getPage()->setRawHeaders($headers);
+}
+public function getEdited()
+{
+return $this->getPage()->getEdited();
+}
+public function setEdited($edited)
+{
+$this->getPage()->setEdited($edited);
+}
+public function isError()
+{
+return $this->getPage()->isError();
+}
+public function getTitle()
+{
+return $this->getPage()->getTitle();
+}
+public function setTitle($title)
+{
+$this->getPage()->setTitle($title);
+}
+public function setType($type)
+{
+$this->getPage()->setType($type);
+}
+public function getType()
+{
+return $this->getPage()->getType();
+}
+public function __toString()
+{
+return $this->getPage()->__toString();
+}
+public function serialize()
+{
+if ($this->manager) {
+return serialize(array('pageId'=> $this->getPage()->getId(),'snapshotId'=> $this->snapshot->getId(),
+));
+}
+return serialize(array());
+}
+public function unserialize($serialized)
+{
+}
+}
+}
+namespace Sonata\PageBundle\Model
+{
+class Template
+{
+protected $path;
+protected $name;
+protected $containers;
+const TYPE_STATIC = 1;
+const TYPE_DYNAMIC = 2;
+public function __construct($name, $path, array $containers = array())
+{
+$this->name = $name;
+$this->path = $path;
+$this->containers = $containers;
+foreach ($this->containers as &$container) {
+$container = $this->normalize($container);
+}
+}
+public function getContainers()
+{
+return $this->containers;
+}
+public function addContainer($code, $meta)
+{
+$this->containers[$code] = $this->normalize($meta);
+}
+public function getContainer($code)
+{
+if (isset($this->containers[$code])) {
+return $this->containers[$code];
+}
+return array();
+}
+protected function normalize(array $meta)
+{
+return array('name'=> isset($meta['name']) ? $meta['name'] :'n/a','type'=> isset($meta['type']) ? $meta['type'] : self::TYPE_STATIC,'blocks'=> isset($meta['blocks']) ? $meta['blocks'] : array(),'placement'=> isset($meta['placement']) ? $meta['placement'] : array(),'shared'=> isset($meta['shared']) ? $meta['shared'] : false,
+);
+}
+public function getName()
+{
+return $this->name;
+}
+public function getPath()
+{
+return $this->path;
+}
+}
+}
+namespace Sonata\PageBundle\Page
+{
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Page\Service\PageServiceInterface;
+interface PageServiceManagerInterface
+{
+public function add($type, PageServiceInterface $service);
+public function get($type);
+public function getAll();
+public function setDefault(PageServiceInterface $service);
+public function execute(PageInterface $page, Request $request, array $parameters = array(), Response $response = null);
+}
+}
+namespace Sonata\PageBundle\Page
+{
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Page\Service\PageServiceInterface;
+use Sonata\PageBundle\Page\PageServiceManagerInterface;
+class PageServiceManager implements PageServiceManagerInterface
+{
+protected $services = array();
+protected $default;
+protected $router;
+public function __construct(RouterInterface $router)
+{
+$this->router = $router;
+}
+public function add($type, PageServiceInterface $service)
+{
+$this->services[$type] = $service;
+}
+public function get($type)
+{
+if ($type instanceof PageInterface) {
+$type = $type->getType();
+}
+if (!isset($this->services[$type])) {
+if (!$this->default) {
+throw new \RuntimeException(sprintf('unable to find a default service for type "%s"', $type));
+}
+return $this->default;
+}
+return $this->services[$type];
+}
+public function getAll()
+{
+return $this->services;
+}
+public function setDefault(PageServiceInterface $service)
+{
+$this->default = $service;
+}
+public function execute(PageInterface $page, Request $request, array $parameters = array(), Response $response = null)
+{
+$service = $this->get($page);
+$response = $response ?: $this->createResponse($page);
+if ($response->isRedirection()) {
+return $response;
+}
+$parameters['page'] = $page;
+$parameters['site'] = $page->getSite();
+$response = $service->execute($page, $request, $parameters, $response);
+return $response;
+}
+protected function createResponse(PageInterface $page)
+{
+if ($page->getTarget()) {
+$page->addHeader('Location', $this->router->generate($page->getTarget()));
+$response = new Response('', 302, $page->getHeaders() ?: array());
+} else {
+$response = new Response('', 200, $page->getHeaders() ?: array());
+}
+return $response;
+}
+}
+}
+namespace Sonata\PageBundle\Page\Service
+{
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\PageBundle\Model\PageInterface;
+interface PageServiceInterface
+{
+public function getName();
+public function execute(PageInterface $page, Request $request, array $parameters = array(), Response $response = null);
+}
+}
+namespace Sonata\PageBundle\Page\Service
+{
+abstract class BasePageService implements PageServiceInterface
+{
+protected $name;
+public function __construct($name)
+{
+$this->name = $name;
+}
+public function getName()
+{
+return $this->name;
+}
+}
+}
+namespace Sonata\PageBundle\Page\Service
+{
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\SeoBundle\Seo\SeoPageInterface;
+use Sonata\PageBundle\Page\Service\BasePageService;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Page\TemplateManagerInterface;
+class DefaultPageService extends BasePageService
+{
+protected $templateManager;
+protected $seoPage;
+public function __construct($name, TemplateManagerInterface $templateManager, SeoPageInterface $seoPage = null)
+{
+$this->name = $name;
+$this->templateManager = $templateManager;
+$this->seoPage = $seoPage;
+}
+public function execute(PageInterface $page, Request $request, array $parameters = array(), Response $response = null)
+{
+$this->updateSeoPage($page);
+$response = $this->templateManager->renderResponse($page->getTemplateCode(), $parameters, $response);
+return $response;
+}
+protected function updateSeoPage(PageInterface $page)
+{
+if (!$this->seoPage) {
+return;
+}
+if ($page->getTitle()) {
+$this->seoPage->setTitle($page->getTitle() ?: $page->getName());
+}
+if ($page->getMetaDescription()) {
+$this->seoPage->addMeta('name','description', $page->getMetaDescription());
+}
+if ($page->getMetaKeyword()) {
+$this->seoPage->addMeta('name','keywords', $page->getMetaKeyword());
+}
+$this->seoPage->addMeta('property','og:type','article');
+$this->seoPage->addHtmlAttributes('prefix','og: http://ogp.me/ns#');
+}
+}
+}
+namespace Sonata\PageBundle\Page
+{
+use Symfony\Component\HttpFoundation\Response;
+use Sonata\PageBundle\Model\Template;
+interface TemplateManagerInterface
+{
+public function renderResponse($code, array $parameters = array(), Response $response = null);
+public function add($code, Template $template);
+public function get($code);
+public function setDefaultTemplateCode($code);
+public function getDefaultTemplateCode();
+public function setAll($templates);
+public function getAll();
+}
+}
+namespace Sonata\PageBundle\Page
+{
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Templating\StreamingEngineInterface;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Sonata\PageBundle\Model\Template;
+class TemplateManager implements TemplateManagerInterface
+{
+protected $engine;
+protected $defaultParameters;
+protected $templates;
+protected $defaultTemplateCode ='default';
+protected $defaultTemplatePath ='SonataPageBundle::layout.html.twig';
+public function __construct(EngineInterface $engine, array $defaultParameters = array())
+{
+$this->engine = $engine;
+$this->defaultParameters = $defaultParameters;
+}
+public function add($code, Template $template)
+{
+$this->templates[$code] = $template;
+}
+public function get($code)
+{
+if (!isset($this->templates[$code])) {
+return null;
+}
+return $this->templates[$code];
+}
+public function setDefaultTemplateCode($code)
+{
+$this->defaultTemplateCode = $code;
+}
+public function getDefaultTemplateCode()
+{
+return $this->defaultTemplateCode;
+}
+public function setAll($templates)
+{
+$this->templates = $templates;
+}
+public function getAll()
+{
+return $this->templates;
+}
+public function renderResponse($code, array $parameters = array(), Response $response = null)
+{
+return $this->engine->renderResponse(
+$this->getTemplatePath($code),
+array_merge($this->defaultParameters, $parameters),
+$response
+);
+}
+protected function getTemplatePath($code)
+{
+$code = $code ?: $this->getDefaultTemplateCode();
+$template = $this->get($code);
+return $template ? $template->getPath() : $this->defaultTemplatePath;
+}
+}
+}
+namespace Sonata\PageBundle\Request
+{
+interface SiteRequestInterface
+{
+public function setPathInfo($pathInfo);
+public function setBaseUrl($baseUrl);
+}
+}
+namespace Sonata\PageBundle\Request
+{
+use Symfony\Component\HttpFoundation\Request as BaseRequest;
+class SiteRequest extends BaseRequest implements SiteRequestInterface
+{
+public function setPathInfo($pathInfo)
+{
+$this->pathInfo = $pathInfo;
+}
+public function setBaseUrl($baseUrl)
+{
+$this->baseUrl = $baseUrl;
+}
+}
+}
+namespace Sonata\PageBundle\Request
+{
+use Symfony\Component\Routing\RequestContext;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+class SiteRequestContext extends RequestContext
+{
+protected $selector;
+public function __construct(SiteSelectorInterface $selector, $baseUrl ='', $method ='GET', $host ='localhost', $scheme ='http', $httpPort = 80, $httpsPort = 443)
+{
+$this->selector = $selector;
+parent::__construct($baseUrl, $method, $host, $scheme, $httpPort, $httpsPort);
+}
+public function getHost()
+{
+$site = $this->selector->retrieve();
+if ($site && !$site->isLocalhost()) {
+return $site->getHost();
+}
+return parent::getHost();
+}
+public function getBaseUrl()
+{
+$site = $this->selector->retrieve();
+if ($site) {
+return parent::getBaseUrl() . $site->getRelativePath();
+}
+return parent::getBaseUrl();
+}
+}
+}
+namespace Symfony\Cmf\Component\Routing
+{
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+interface VersatileGeneratorInterface extends UrlGeneratorInterface
+{
+public function supports($name);
+public function getRouteDebugMessage($name, array $parameters = array());
+}
+}
+namespace Symfony\Cmf\Component\Routing
+{
+use Symfony\Component\Routing\RouterInterface;
+interface ChainedRouterInterface extends RouterInterface, VersatileGeneratorInterface
+{
+}
+}
+namespace Sonata\PageBundle\Route
+{
+use Symfony\Cmf\Component\Routing\ChainedRouterInterface;
+use Symfony\Cmf\Component\Routing\VersatileGeneratorInterface;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\RouterInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerInterface;
+use Sonata\PageBundle\Model\SiteInterface;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+class CmsPageRouter implements ChainedRouterInterface
+{
+protected $context;
+protected $cmsSelector;
+protected $siteSelector;
+protected $router;
+public function __construct(CmsManagerSelectorInterface $cmsSelector, SiteSelectorInterface $siteSelector, RouterInterface $router)
+{
+$this->cmsSelector = $cmsSelector;
+$this->siteSelector = $siteSelector;
+$this->router = $router;
+}
+public function setContext(RequestContext $context)
+{
+$this->context = $context;
+}
+public function getContext()
+{
+return $this->context;
+}
+public function getRouteCollection()
+{
+return new RouteCollection();
+}
+public function supports($name)
+{
+if (is_string($name) && !$this->isPageAlias($name) && !$this->isPageSlug($name)) {
+return false;
+}
+if (is_object($name) && !($name instanceof PageInterface)) {
+return false;
+}
+return true;
+}
+public function generate($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+{
+try {
+$url = false;
+if ($this->isPageAlias($name)) {
+$name = $this->getPageByPageAlias($name);
+}
+if ($name instanceof PageInterface) {
+$url = $this->generateFromPage($name, $parameters, $referenceType);
+}
+if ($this->isPageSlug($name)) {
+$url = $this->generateFromPageSlug($parameters, $referenceType);
+}
+if ($url === false) {
+throw new RouteNotFoundException('The Sonata CmsPageRouter cannot find url');
+}
+} catch (PageNotFoundException $exception) {
+throw new RouteNotFoundException('The Sonata CmsPageRouter cannot find page');
+}
+return $url;
+}
+public function getRouteDebugMessage($name, array $parameters = array())
+{
+if ($this->router instanceof VersatileGeneratorInterface) {
+return $this->router->getRouteDebugMessage($name, $parameters);
+}
+return "Route '$name' not found";
+}
+public function match($pathinfo)
+{
+$cms = $this->cmsSelector->retrieve();
+$site = $this->siteSelector->retrieve();
+if (!$cms instanceof CmsManagerInterface) {
+throw new ResourceNotFoundException("No CmsManager defined");
+}
+if (!$site instanceof SiteInterface) {
+throw new ResourceNotFoundException("No site defined");
+}
+try {
+$page = $cms->getPageByUrl($site, $pathinfo);
+} catch (PageNotFoundException $e) {
+throw new ResourceNotFoundException($pathinfo, 0, $e);
+}
+if (!$page || !$page->isCms()) {
+throw new ResourceNotFoundException($pathinfo);
+}
+if (!$page->getEnabled() && !$this->cmsSelector->isEditor()) {
+throw new ResourceNotFoundException($pathinfo);
+}
+$cms->setCurrentPage($page);
+return array ('_controller'=>'sonata.page.page_service_manager:execute','_route'=> PageInterface::PAGE_ROUTE_CMS_NAME,'page'=> $page,'path'=> $pathinfo,'params'=> array()
+);
+}
+protected function generateFromPage(PageInterface $page, array $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+{
+if ($page->isHybrid()) {
+return $this->router->generate($page->getRouteName(), $parameters, $referenceType);
+}
+$url = $this->getUrlFromPage($page);
+if ($url === false) {
+throw new \RuntimeException(sprintf('Page "%d" has no url or customUrl.', $page->getId()));
+}
+return $this->decorateUrl($url, $parameters, $referenceType);
+}
+protected function generateFromPageSlug(array $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+{
+if (!isset($parameters['path'])) {
+throw new \RuntimeException('Please provide a `path` parameters');
+}
+$url = $parameters['path'];
+unset($parameters['path']);
+return $this->decorateUrl($url, $parameters, $referenceType);
+}
+protected function decorateUrl($url, array $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+{
+if (!$this->context) {
+throw new \RuntimeException('No context associated to the CmsPageRouter');
+}
+$schemeAuthority ='';
+if ($this->context->getHost() && (self::ABSOLUTE_URL === $referenceType || self::NETWORK_PATH === $referenceType)) {
+$port ='';
+if ('http'=== $this->context->getScheme() && 80 != $this->context->getHttpPort()) {
+$port = sprintf(':%s', $this->context->getHttpPort());
+} elseif ('https'=== $this->context->getScheme() && 443 != $this->context->getHttpsPort()) {
+$port = sprintf(':%s', $this->context->getHttpsPort());
+}
+$schemeAuthority = self::NETWORK_PATH === $referenceType ?'//': sprintf('%s://', $this->context->getScheme());
+$schemeAuthority = sprintf('%s%s%s', $schemeAuthority, $this->context->getHost(), $port);
+}
+if (self::RELATIVE_PATH === $referenceType) {
+$url = $this->getRelativePath($this->context->getPathInfo(), $url);
+} else {
+$url = sprintf('%s%s%s', $schemeAuthority, $this->context->getBaseUrl(), $url);
+}
+if (count($parameters) > 0) {
+return sprintf('%s?%s', $url, http_build_query($parameters,'','&'));
+}
+return $url;
+}
+protected function getRelativePath($basePath, $targetPath)
+{
+return UrlGenerator::getRelativePath($basePath, $targetPath);
+}
+protected function getPageByPageAlias($alias)
+{
+$site = $this->siteSelector->retrieve();
+$page = $this->cmsSelector->retrieve()->getPageByPageAlias($site, $alias);
+return $page;
+}
+protected function getUrlFromPage(PageInterface $page)
+{
+return $page->getCustomUrl() ?: $page->getUrl();
+}
+protected function isPageAlias($name)
+{
+return (is_string($name) && substr($name, 0, 12) ==='_page_alias_');
+}
+protected function isPageSlug($name)
+{
+return (is_string($name) && $name == PageInterface::PAGE_ROUTE_CMS_NAME);
+}
+}
+}
+namespace Sonata\PageBundle\Site
+{
+use Sonata\PageBundle\Model\SiteInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+interface SiteSelectorInterface
+{
+public function retrieve();
+public function getRequestContext();
+public function onKernelRequest(GetResponseEvent $event);
+public function onKernelRequestRedirect(GetResponseEvent $event);
+}
+}
+namespace Sonata\PageBundle\Site
+{
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpFoundation\Request;
+use Sonata\PageBundle\Model\SiteInterface;
+use Sonata\PageBundle\Model\SiteManagerInterface;
+use Sonata\PageBundle\CmsManager\DecoratorStrategyInterface;
+use Sonata\SeoBundle\Seo\SeoPageInterface;
+abstract class BaseSiteSelector implements SiteSelectorInterface
+{
+protected $siteManager;
+protected $decoratorStrategy;
+protected $seoPage;
+protected $site;
+public function __construct(SiteManagerInterface $siteManager, DecoratorStrategyInterface $decoratorStrategy, SeoPageInterface $seoPage)
+{
+$this->siteManager = $siteManager;
+$this->decoratorStrategy = $decoratorStrategy;
+$this->seoPage = $seoPage;
+}
+public function retrieve()
+{
+return $this->site;
+}
+public function getRequestContext()
+{
+return new RequestContext();
+}
+public function onKernelRequestRedirect(GetResponseEvent $event)
+{
+}
+final public function onKernelRequest(GetResponseEvent $event)
+{
+if (!$this->decoratorStrategy->isRouteUriDecorable($event->getRequest()->getPathInfo())) {
+return;
+}
+$this->handleKernelRequest($event);
+if ($this->site) {
+if ($this->site->getTitle()) {
+$this->seoPage->setTitle($this->site->getTitle());
+}
+if ($this->site->getMetaDescription()) {
+$this->seoPage->addMeta('name','description', $this->site->getMetaDescription());
+}
+if ($this->site->getMetaKeywords()) {
+$this->seoPage->addMeta('name','keywords', $this->site->getMetaKeywords());
+}
+}
+}
+protected function getSites(Request $request)
+{
+return $this->siteManager->findBy(array('host'=> array($request->getHost(),'localhost'),'enabled'=> true,
+), array('isDefault'=>'DESC',
+));
+}
+protected function matchRequest(SiteInterface $site, Request $request)
+{
+$results = array();
+$requestPathInfo = $request->get('pathInfo', $request->getPathInfo());
+if (!preg_match(sprintf('@^(%s)(/.*|$)@', $site->getRelativePath()), $requestPathInfo, $results)) {
+return false;
+}
+return $results[2];
+}
+protected function getPreferredSite(array $sites, Request $request)
+{
+if (count($sites) === 0) {
+return null;
+}
+$sitesLocales = array_map(function(SiteInterface $site) {
+return $site->getLocale();
+}, $sites);
+$language = $request->getPreferredLanguage($sitesLocales);
+$host = $request->getHost();
+foreach ($sites as $site) {
+if (in_array($site->getHost(), array('localhost', $host)) && $language === $site->getLocale()) {
+return $site;
+}
+}
+return reset($sites);
+}
+abstract protected function handleKernelRequest(GetResponseEvent $event);
+}
+}
+namespace Sonata\PageBundle\Site
+{
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Sonata\PageBundle\Request\SiteRequestInterface;
+use Sonata\PageBundle\Request\SiteRequestContext;
+class HostPathSiteSelector extends BaseSiteSelector
+{
+public function handleKernelRequest(GetResponseEvent $event)
+{
+$request = $event->getRequest();
+if (!$request instanceof SiteRequestInterface) {
+throw new \RuntimeException('You must change the main Request object in the front controller (app.php) in order to use the `host_with_path` strategy');
+}
+$defaultSite = false;
+$pathInfo = null;
+foreach ($this->getSites($request) as $site) {
+if (!$site->isEnabled()) {
+continue;
+}
+if (!$this->site && $site->getIsDefault()) {
+$defaultSite = $site;
+}
+$match = $this->matchRequest($site, $request);
+if (false === $match) {
+continue;
+}
+$this->site = $site;
+$pathInfo = $match;
+if (!$this->site->isLocalhost()) {
+break;
+}
+}
+if ($this->site) {
+$request->setPathInfo($pathInfo ?:'/');
+}
+if (!$this->site && $defaultSite) {
+$event->setResponse(new RedirectResponse($defaultSite->getUrl(), 301));
+} elseif ($this->site && $this->site->getLocale()) {
+$request->attributes->set('_locale', $this->site->getLocale());
+}
+}
+public function onKernelRequestRedirect(GetResponseEvent $event)
+{
+$request = $event->getRequest();
+if (!$this->site) {
+return;
+}
+if ('Symfony\\Bundle\\FrameworkBundle\\Controller\\RedirectController::urlRedirectAction'== $request->get('_controller')) {
+$request->attributes->set('path', $this->site->getRelativePath() . $request->attributes->get('path'));
+}
+}
+public function getRequestContext()
+{
+return new SiteRequestContext($this);
+}
+}
+}
+namespace Sonata\PageBundle\Site
+{
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+class HostSiteSelector extends BaseSiteSelector
+{
+public function handleKernelRequest(GetResponseEvent $event)
+{
+foreach ($this->getSites($event->getRequest()) as $site) {
+if (!$site->isEnabled()) {
+continue;
+}
+$this->site = $site;
+if (!$this->site->isLocalhost()) {
+break;
+}
+}
+if ($this->site && $this->site->getLocale()) {
+$event->getRequest()->attributes->set('_locale', $this->site->getLocale());
+}
+}
+}
+}
+namespace Sonata\PageBundle\Twig\Extension
+{
+use Sonata\PageBundle\Cache\HttpCacheHandlerInterface;
+use Sonata\PageBundle\Model\PageBlockInterface;
+use Sonata\PageBundle\Model\PageInterface;
+use Sonata\PageBundle\CmsManager\CmsManagerSelectorInterface;
+use Sonata\PageBundle\Site\SiteSelectorInterface;
+use Sonata\PageBundle\Exception\PageNotFoundException;
+use Sonata\PageBundle\Model\SnapshotPageProxy;
+use Symfony\Bridge\Twig\Extension\HttpKernelExtension;
+use Symfony\Component\Routing\RouterInterface;
+use Sonata\BlockBundle\Templating\Helper\BlockHelper;
+class PageExtension extends \Twig_Extension
+{
+private $cmsManagerSelector;
+private $siteSelector;
+private $resources;
+private $environment;
+private $router;
+private $blockHelper;
+private $httpKernelExtension;
+public function __construct(CmsManagerSelectorInterface $cmsManagerSelector, SiteSelectorInterface $siteSelector, RouterInterface $router, BlockHelper $blockHelper, HttpKernelExtension $httpKernelExtension)
+{
+$this->cmsManagerSelector = $cmsManagerSelector;
+$this->siteSelector = $siteSelector;
+$this->router = $router;
+$this->blockHelper = $blockHelper;
+$this->httpKernelExtension = $httpKernelExtension;
+}
+public function getFunctions()
+{
+return array('sonata_page_ajax_url'=> new \Twig_Function_Method($this,'ajaxUrl'),'sonata_page_url'=> new \Twig_Function_Method($this,'url'),'sonata_page_breadcrumb'=> new \Twig_Function_Method($this,'breadcrumb', array('is_safe'=> array('html'))),'sonata_page_render_container'=> new \Twig_Function_Method($this,'renderContainer', array('is_safe'=> array('html'))),'sonata_page_render_block'=> new \Twig_Function_Method($this,'renderBlock', array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('controller', array($this,'controller'))
+);
+}
+public function initRuntime(\Twig_Environment $environment)
+{
+$this->environment = $environment;
+}
+public function getName()
+{
+return'sonata_page';
+}
+public function breadcrumb(PageInterface $page = null, array $options = array())
+{
+if (!$page) {
+$page = $this->cmsManagerSelector->retrieve()->getCurrentPage();
+}
+$options = array_merge(array('separator'=>'','current_class'=>'','last_separator'=>'','force_view_home_page'=> true,'container_attr'=> array('class'=>'sonata-page-breadcrumbs'),'elements_attr'=> array(),'template'=>'SonataPageBundle:Page:breadcrumb.html.twig',
+), $options);
+$breadcrumbs = array();
+if ($page) {
+$breadcrumbs = $page->getParents();
+if ($options['force_view_home_page'] && (!isset($breadcrumbs[0]) || $breadcrumbs[0]->getRouteName() !='homepage')) {
+try {
+$homePage = $this->cmsManagerSelector->retrieve()->getPageByRouteName($this->siteSelector->retrieve(),'homepage');
+} catch (PageNotFoundException $e) {
+$homePage = false;
+}
+if ($homePage) {
+array_unshift($breadcrumbs, $homePage);
+}
+}
+}
+return $this->render($options['template'], array('page'=> $page,'breadcrumbs'=> $breadcrumbs,'options'=> $options
+));
+}
+public function ajaxUrl(PageBlockInterface $block, $parameters = array(), $absolute = false)
+{
+$parameters['blockId'] = $block->getId();
+if ($block->getPage() instanceof PageInterface) {
+$parameters['pageId'] = $block->getPage()->getId();
+}
+return $this->router->generate('sonata_page_ajax_block', $parameters, $absolute);
+}
+private function render($template, array $parameters = array())
+{
+if (!isset($this->resources[$template])) {
+$this->resources[$template] = $this->environment->loadTemplate($template);
+}
+return $this->resources[$template]->render($parameters);
+}
+public function renderContainer($name, $page = null, array $options = array())
+{
+$cms = $this->cmsManagerSelector->retrieve();
+$site = $this->siteSelector->retrieve();
+$targetPage = false;
+try {
+if ($page === null) {
+$targetPage = $cms->getCurrentPage();
+} else if (!$page instanceof PageInterface && is_string($page)) {
+$targetPage = $cms->getInternalRoute($site, $page);
+} else if ($page instanceof PageInterface) {
+$targetPage = $page;
+}
+} catch (PageNotFoundException $e) {
+$targetPage = false;
+}
+if (!$targetPage) {
+return"";
+}
+$container = $cms->findContainer($name, $targetPage);
+if (!$container) {
+return"";
+}
+return $this->renderBlock($container, $options);
+}
+public function renderBlock(PageBlockInterface $block, array $options = array())
+{
+if ($block->getEnabled() === false && !$this->cmsManagerSelector->isEditor()) {
+return'';
+}
+$pageCacheKeys = array('manager'=> $block->getPage() instanceof SnapshotPageProxy ?'snapshot':'page','page_id'=> $block->getPage()->getId(),
+);
+$options = array_merge(array('use_cache'=> isset($options['use_cache']) ? $options['use_cache'] : true,'extra_cache_keys'=> array()
+), $pageCacheKeys, $options);
+$options['extra_cache_keys'] = array_merge($options['extra_cache_keys'], $pageCacheKeys);
+return $this->blockHelper->render($block, $options);
+}
+public function controller($controller, $attributes = array(), $query = array())
+{
+$globals = $this->environment->getGlobals();
+if (!isset($attributes['pathInfo'])) {
+$sitePath = $this->siteSelector->retrieve()->getRelativePath();
+$currentPathInfo = $globals['app']->getRequest()->getPathInfo();
+$attributes['pathInfo'] = $sitePath . $currentPathInfo;
+}
+return $this->httpKernelExtension->controller($controller, $attributes, $query);
+}
+}
+}
+namespace Sonata\PageBundle\Twig
+{
+use Symfony\Component\DependencyInjection\ContainerInterface;
+class GlobalVariables
+{
+protected $container;
+public function __construct(ContainerInterface $container)
+{
+$this->container = $container;
+}
+public function getSiteAvailables()
+{
+return $this->container->get('sonata.page.manager.site')->findBy(array('enabled'=> true
+));
+}
+public function getCmsManager()
+{
+return $this->container->get('sonata.page.cms_manager_selector')->retrieve();
+}
+public function getCurrentSite()
+{
+return $this->container->get('sonata.page.site.selector')->retrieve();
+}
+public function isEditor()
+{
+return $this->container->get('sonata.page.cms_manager_selector')->isEditor();
+}
+public function getDefaultTemplate()
+{
+$templateManager = $this->container->get('sonata.page.template_manager');
+return $templateManager->get($templateManager->getDefaultTemplateCode())->getPath();
+}
+public function getAssets()
+{
+return $this->container->getParameter('sonata.page.assets');
+}
+public function isInlineEditionOn()
+{
+return $this->container->getParameter('sonata.page.is_inline_edition_on');
+}
+}
+}
+namespace Sonata\SeoBundle\Seo
+{
+interface SeoPageInterface
+{
+public function setTitle($title);
+public function addTitle($title);
+public function getTitle();
+public function addMeta($type, $name, $value, array $extras = array());
+public function hasMeta($type, $name);
+public function getMetas();
+public function setMetas(array $metas);
+public function setHtmlAttributes(array $attributes);
+public function addHtmlAttributes($name, $value);
+public function getHtmlAttributes();
+public function setHeadAttributes(array $attributes);
+public function addHeadAttribute($name, $value);
+public function getHeadAttributes();
+public function setLinkCanonical($link);
+public function getLinkCanonical();
+public function setSeparator($separator);
+public function setLangAlternates(array $langAlternates);
+public function addLangAlternate($href, $hrefLang);
+public function getLangAlternates();
+public function addOEmbedLink($title, $link);
+public function getOEmbedLinks();
+}
+}
+namespace Sonata\SeoBundle\Seo
+{
+class SeoPage implements SeoPageInterface
+{
+protected $title;
+protected $metas;
+protected $htmlAttributes;
+protected $linkCanonical;
+protected $separator;
+protected $headAttributes;
+protected $langAlternates;
+protected $oembedLinks;
+public function __construct($title ='')
+{
+$this->title = $title;
+$this->metas = array('http-equiv'=> array(),'name'=> array(),'schema'=> array(),'charset'=> array(),'property'=> array(),
+);
+$this->headAttributes = array();
+$this->linkCanonical ='';
+$this->separator =' ';
+$this->langAlternates = array();
+$this->oembedLinks = array();
+}
+public function setTitle($title)
+{
+$this->title = $title;
+return $this;
+}
+public function addTitle($title)
+{
+$this->title = $title . $this->separator . $this->title;
+return $this;
+}
+public function getTitle()
+{
+return $this->title;
+}
+public function getMetas()
+{
+return $this->metas;
+}
+public function addMeta($type, $name, $content, array $extras = array())
+{
+if (!isset($this->metas[$type])) {
+$this->metas[$type] = array();
+}
+$this->metas[$type][$name] = array($content, $extras);
+return $this;
+}
+public function hasMeta($type, $name)
+{
+return isset($this->metas[$type][$name]);
+}
+public function removeMeta($type, $name)
+{
+unset($this->metas[$type][$name]);
+return $this;
+}
+public function setMetas(array $metadatas)
+{
+$this->metas = array();
+foreach ($metadatas as $type => $metas) {
+if (!is_array($metas)) {
+throw new \RuntimeException('$metas must be an array');
+}
+foreach ($metas as $name => $meta) {
+list($content, $extras) = $this->normalize($meta);
+$this->addMeta($type, $name, $content, $extras);
+}
+}
+return $this;
+}
+private function normalize($meta)
+{
+if (is_string($meta)) {
+return array($meta, array());
+}
+return $meta;
+}
+public function setHtmlAttributes(array $attributes)
+{
+$this->htmlAttributes = $attributes;
+return $this;
+}
+public function addHtmlAttributes($name, $value)
+{
+$this->htmlAttributes[$name] = $value;
+return $this;
+}
+public function removeHtmlAttributes($name)
+{
+unset($this->htmlAttributes[$name]);
+return $this;
+}
+public function getHtmlAttributes()
+{
+return $this->htmlAttributes;
+}
+public function hasHtmlAttribute($name)
+{
+return isset($this->htmlAttributes[$name]);
+}
+public function setHeadAttributes(array $attributes)
+{
+$this->headAttributes = $attributes;
+return $this;
+}
+public function addHeadAttribute($name, $value)
+{
+$this->headAttributes[$name] = $value;
+return $this;
+}
+public function removeHeadAttribute($name)
+{
+unset($this->headAttributes[$name]);
+return $this;
+}
+public function getHeadAttributes()
+{
+return $this->headAttributes;
+}
+public function hasHeadAttribute($name)
+{
+return isset($this->headAttributes[$name]);
+}
+public function setLinkCanonical($link)
+{
+$this->linkCanonical = $link;
+return $this;
+}
+public function getLinkCanonical()
+{
+return $this->linkCanonical;
+}
+public function removeLinkCanonical()
+{
+$this->linkCanonical ='';
+}
+public function setSeparator($separator)
+{
+$this->separator = $separator;
+return $this;
+}
+public function setLangAlternates(array $langAlternates)
+{
+$this->langAlternates= $langAlternates;
+return $this;
+}
+public function addLangAlternate($href, $hrefLang)
+{
+$this->langAlternates[$href] = $hrefLang;
+return $this;
+}
+public function removeLangAlternate($href)
+{
+unset($this->langAlternates[$href]);
+return $this;
+}
+public function hasLangAlternate($href)
+{
+return isset($this->langAlternates[$href]);
+}
+public function getLangAlternates()
+{
+return $this->langAlternates;
+}
+public function addOEmbedLink($title, $link)
+{
+$this->oembedLinks[$title] = $link;
+return $this;
+}
+public function getOEmbedLinks()
+{
+return $this->oembedLinks;
+}
+}
+}
+namespace Exporter\Source
+{
+interface SourceIteratorInterface extends \Iterator
+{
+}
+}
+namespace Sonata\SeoBundle\Sitemap
+{
+use Exporter\Source\SourceIteratorInterface;
+use Exporter\Source\ChainSourceIterator;
+class SourceManager implements SourceIteratorInterface
+{
+protected $sources;
+public function __construct()
+{
+$this->sources = new \ArrayIterator();
+}
+public function addSource($group, SourceIteratorInterface $source, array $types = array())
+{
+if (!isset($this->sources[$group])) {
+$this->sources[$group] = new \stdClass();
+$this->sources[$group]->sources = new ChainSourceIterator();
+$this->sources[$group]->types = array();
+}
+$this->sources[$group]->sources->addSource($source);
+if ($types) {
+$this->sources[$group]->types += array_diff($types, $this->sources[$group]->types);
+}
+}
+public function current()
+{
+return $this->sources->current();
+}
+public function next()
+{
+$this->sources->next();
+}
+public function key()
+{
+return $this->sources->key();
+}
+public function valid()
+{
+return $this->sources->valid();
+}
+public function rewind()
+{
+$this->sources->rewind();
+}
+}
+}
+namespace Sonata\SeoBundle\Twig\Extension
+{
+use Sonata\SeoBundle\Seo\SeoPageInterface;
+class SeoExtension extends \Twig_Extension
+{
+protected $page;
+protected $encoding;
+public function __construct(SeoPageInterface $page, $encoding)
+{
+$this->page = $page;
+$this->encoding = $encoding;
+}
+public function getFunctions()
+{
+return array(
+new \Twig_SimpleFunction('sonata_seo_title', array($this,'getTitle'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_metadatas', array($this,'getMetadatas'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_html_attributes', array($this,'getHtmlAttributes'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_head_attributes', array($this,'getHeadAttributes'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_link_canonical', array($this,'getLinkCanonical'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_lang_alternates', array($this,'getLangAlternates'), array('is_safe'=> array('html'))),
+new \Twig_SimpleFunction('sonata_seo_oembed_links', array($this,'getOembedLinks'), array('is_safe'=> array('html'))),
+);
+}
+public function getName()
+{
+return'sonata_seo';
+}
+public function renderTitle()
+{
+echo $this->getTitle();
+}
+public function getTitle()
+{
+return sprintf("<title>%s</title>", strip_tags($this->page->getTitle()));
+}
+public function renderMetadatas()
+{
+echo $this->getMetadatas();
+}
+public function getMetadatas()
+{
+$html ='';
+foreach ($this->page->getMetas() as $type => $metas) {
+foreach ((array) $metas as $name => $meta) {
+list($content, $extras) = $meta;
+if (!empty($content)) {
+$html .= sprintf("<meta %s=\"%s\" content=\"%s\" />\n",
+$type,
+$this->normalize($name),
+$this->normalize($content)
+);
+} else {
+$html .= sprintf("<meta %s=\"%s\" />\n",
+$type,
+$this->normalize($name)
+);
+}
+}
+}
+return $html;
+}
+public function renderHtmlAttributes()
+{
+echo $this->getHtmlAttributes();
+}
+public function getHtmlAttributes()
+{
+$attributes ='';
+foreach ($this->page->getHtmlAttributes() as $name => $value) {
+$attributes .= sprintf('%s="%s" ', $name, $value);
+}
+return rtrim($attributes);
+}
+public function renderHeadAttributes()
+{
+echo $this->getHeadAttributes();
+}
+public function getHeadAttributes()
+{
+$attributes ='';
+foreach ($this->page->getHeadAttributes() as $name => $value) {
+$attributes .= sprintf('%s="%s" ', $name, $value);
+}
+return rtrim($attributes);
+}
+public function renderLinkCanonical()
+{
+echo $this->getLinkCanonical();
+}
+public function getLinkCanonical()
+{
+if ($this->page->getLinkCanonical()) {
+return sprintf("<link rel=\"canonical\" href=\"%s\"/>\n", $this->page->getLinkCanonical());
+}
+}
+public function renderLangAlternates()
+{
+echo $this->getLangAlternates();
+}
+public function getLangAlternates()
+{
+$html ='';
+foreach ($this->page->getLangAlternates() as $href => $hrefLang) {
+$html .= sprintf("<link rel=\"alternate\" href=\"%s\" hreflang=\"%s\"/>\n", $href, $hrefLang);
+}
+return $html;
+}
+public function getOembedLinks()
+{
+$html ='';
+foreach ($this->page->getOEmbedLinks() as $title => $link) {
+$html .= sprintf("<link rel=\"alternate\" type=\"application/json+oembed\" href=\"%s\" title=\"%s\" />\n", $link, $title);
+}
+return $html;
+}
+private function normalize($string)
+{
+return htmlentities(strip_tags($string), ENT_COMPAT, $this->encoding);
+}
+}
+}

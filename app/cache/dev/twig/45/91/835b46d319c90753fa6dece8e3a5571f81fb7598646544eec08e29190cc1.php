@@ -165,7 +165,7 @@ class __TwigTemplate_4591835b46d319c90753fa6dece8e3a5571f81fb7598646544eec08e291
         if (("explain" == (isset($context["page"]) ? $context["page"] : $this->getContext($context, "page")))) {
             // line 61
             echo "        ";
-            echo $this->env->getExtension('http_kernel')->renderFragment($this->env->getExtension('http_kernel')->controller("DoctrineBundle:Profiler:explain", array("token" =>             // line 62
+            echo $this->env->getExtension('http_kernel')->renderFragment($this->env->getExtension('sonata_page')->controller("DoctrineBundle:Profiler:explain", array("token" =>             // line 62
 (isset($context["token"]) ? $context["token"] : $this->getContext($context, "token")), "panel" => "db", "connectionName" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 64
 (isset($context["app"]) ? $context["app"] : $this->getContext($context, "app")), "request", array()), "query", array()), "get", array(0 => "connection"), "method"), "query" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 65
 (isset($context["app"]) ? $context["app"] : $this->getContext($context, "app")), "request", array()), "query", array()), "get", array(0 => "query"), "method"))));

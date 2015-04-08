@@ -1,0 +1,528 @@
+/**
+ *
+ * This file is part of the Sonata package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * generated on: Wed Apr 01 2015 00:20:49 GMT-0600 (CST)
+ * revision:     a2858c1dd171a8c58bc87871bb7a17db46475d2e
+ *
+ */
+@charset "UTF-8";
+/**
+ *
+ * CSS dedicated to 'page composer' component.
+ *
+ * composer.js rely heavily on these style
+ * to handle forms show/hide and micro template preview.
+ *
+ */
+/*-------------------------------------------------------------+
+ | SETUP (colors/sizes…)                                       |
+ +-------------------------------------------------------------*/
+.page-composer {
+  /*---------------------------------------------------------------------------+
+   | MAIN CONTENT VIEW (block selector + editable blocks                       |
+   +---------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------+
+   | ORPHAN BLOCKS (without container defined in current template              |
+   +---------------------------------------------------------------------------*/ }
+  .page-composer__page-preview {
+    padding: 3px;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    border: 1px solid #dcdcdc;
+    margin-bottom: 20px; }
+    .page-composer__page-preview__containers {
+      position: relative;
+      min-height: 400px; }
+    .page-composer__page-preview__container, .page-composer__page-preview__container--no-block {
+      display: block;
+      position: absolute;
+      padding: 3px;
+      color: #404040 !important;
+      text-decoration: none !important; }
+    .page-composer__page-preview__container__content {
+      width: 100%;
+      height: 100%;
+      border: 3px solid;
+      border-radius: 2px;
+      box-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+      padding: 5px 7px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      color: #888;
+      background: #fff;
+      border-color: #fff; }
+      .page-composer__page-preview__container__content .drop-indicator {
+        font-size: 36px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 46px;
+        height: 46px;
+        line-height: 46px;
+        margin-top: -23px;
+        margin-left: -23px;
+        background: #8dd8c3;
+        color: #fff;
+        border-radius: 2px;
+        text-align: center;
+        display: none; }
+    .page-composer__page-preview__add-block {
+      position: absolute;
+      top: 6px;
+      right: 10px; }
+      .page-composer__page-preview__add-block .fa-dot-circle-o {
+        display: none; }
+  .page-composer__block-type-selector {
+    padding: 7px 15px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd; }
+    .page-composer__block-type-selector label {
+      display: inline-block;
+      margin: 0; }
+    .page-composer__block-type-selector select {
+      font-size: 12px;
+      margin-bottom: 0;
+      height: 26px;
+      line-height: 26px; }
+  .page-composer__container__view {
+    border-radius: 2px;
+    background-color: #f9f9f9;
+    border: 1px solid #dcdcdc;
+    position: relative; }
+    .page-composer__container__view__header {
+      padding: 10px 15px;
+      margin: 0 !important;
+      font-size: 24px !important;
+      line-height: 1em !important;
+      color: #3c8dbc !important; }
+    .page-composer__container__view__notice {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: #cfc4a7;
+      color: #fff;
+      border-radius: 2px;
+      padding: 3px 9px;
+      font-size: 11px; }
+      .page-composer__container__view__notice.persist {
+        padding-right: 3px; }
+      .page-composer__container__view__notice.success {
+        background: #5cc4a7; }
+      .page-composer__container__view__notice.error {
+        background: #f56954; }
+      .page-composer__container__view__notice .close-notice {
+        display: inline-block;
+        margin-left: 10px;
+        cursor: pointer;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 0 5px;
+        border-radius: 2px; }
+    .page-composer__container__view .nav-tabs {
+      background-color: #f9f9f9;
+      border-bottom: none; }
+      .page-composer__container__view .nav-tabs > li > a {
+        color: #5cc4a7;
+        border: none !important;
+        margin: 0;
+        border-radius: 0; }
+    .page-composer__container__view .tabbable {
+      background: #fff; }
+    .page-composer__container__view .well {
+      margin: 0;
+      box-shadow: none;
+      background: #ededed;
+      border-radius: 0;
+      border: none; }
+  .page-composer__orphan-containers {
+    background-color: #f9f9f9;
+    border: 1px solid #dcdcdc;
+    border-radius: 2px; }
+    .page-composer__orphan-containers__header {
+      border-bottom: 1px solid #dcdcdc;
+      margin: 0 !important;
+      padding: 10px 15px;
+      font-size: 20px !important;
+      line-height: 1em !important; }
+    .page-composer__orphan-containers ul {
+      list-style: none;
+      margin: 0;
+      padding: 0; }
+  .page-composer__orphan-container {
+    padding: 5px 15px 5px 12px;
+    border-top: 1px solid #dcdcdc;
+    cursor: pointer;
+    border-left: 3px solid #f9f9f9; }
+    .page-composer__orphan-container.active {
+      border-left-color: #3c8dbc; }
+    .page-composer__orphan-container:hover {
+      background: #fff;
+      border-left-color: #3c8dbc; }
+    .page-composer__orphan-container:first-child {
+      border-top: none; }
+
+.page-composer__page-preview__container.hover .page-composer__page-preview__container__content {
+  border-color: #5cc4a7 !important;
+  border-style: dotted; }
+
+.page-composer__page-preview__container.hover .drop-indicator {
+  display: block; }
+
+@-webkit-keyframes droppedin {
+  0% {
+    background-color: #fff;
+    border-color: #fff; }
+  50% {
+    background-color: #abf8d9;
+    border-color: #5cc4a7; }
+  100% {
+    background-color: #fff;
+    border-color: #fff; } }
+/* When we drop a block in a container */
+.page-composer__page-preview__container.dropped .page-composer__page-preview__container__content {
+  -webkit-animation-duration: 600ms;
+  -webkit-animation-name: droppedin; }
+
+.page-composer__page-preview__container__content:hover {
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.7);
+  color: #404040; }
+
+.page-composer__page-preview__container.active .page-composer__page-preview__container__content {
+  border-color: #3c8dbc;
+  box-shadow: none;
+  color: #404040; }
+
+.page-composer__page-preview__container--no-block .page-composer__page-preview__container__content {
+  box-shadow: none;
+  background: transparent;
+  border: 1px dotted #ccc;
+  color: #999;
+  cursor: auto; }
+
+.page-composer__page-preview__container:hover .page-composer__page-preview__add-block .fa-dot-circle-o,
+.page-composer__page-preview__container.active .page-composer__page-preview__add-block .fa-dot-circle-o {
+  display: inline-block; }
+
+.page-composer__page-preview__container:hover .page-composer__page-preview__add-block .fa-circle-o,
+.page-composer__page-preview__container.active .page-composer__page-preview__add-block .fa-circle-o {
+  display: none; }
+
+.page-composer__page-preview__add-block:hover {
+  background: #fff;
+  text-decoration: none;
+  color: #000; }
+
+.page-composer__container__child-count {
+  margin-top: 4px;
+  color: #999;
+  font-size: 12px !important; }
+
+.page-composer__container__child-count .badge,
+.page-composer__container__child .badge {
+  background-color: #3c8dbc;
+  text-shadow: none; }
+
+.page-composer__container__child > .badge {
+  position: absolute;
+  top: 8px;
+  right: 15px; }
+
+.page-composer__container__main-edition-area {
+  background: #fff;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+  display: none; }
+
+.page-composer__container__main-edition-area form {
+  margin: 0; }
+
+/*******************************************\
+
+    Container children (detailed view)
+
+\*******************************************/
+.page-composer__container__children {
+  margin: 0 0 10px 0 !important;
+  list-style: none;
+  padding: 0; }
+
+.page-composer__container__child {
+  border-top: 1px solid #ddd;
+  position: relative;
+  min-height: 40px; }
+
+.page-composer__container__child__helper,
+.page-composer__container__child__content {
+  border-left: 3px solid #3c8dbc; }
+
+.page-composer__container__child__helper {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0 10px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.35); }
+
+.page-composer__container__child__helper h4 {
+  font-size: 14px !important; }
+
+.page-composer__container__child:first-child {
+  border-top: none; }
+
+.page-composer__container__child__content {
+  display: none; }
+
+.page-composer__container__child__content form {
+  margin: 0 !important; }
+
+.page-composer__container__child .box {
+  border: none;
+  border-radius: 0;
+  margin-bottom: 0;
+  -moz-box-shadow: none;
+  box-shadow: none; }
+
+.page-composer__container__child--expanded .page-composer__container__child__content {
+  display: block; }
+
+.page-composer__container__child__loader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  display: none; }
+
+.page-composer__block-type-selector__loader,
+.page-composer__container__child__loader span {
+  display: inline-block;
+  padding: 0 9px;
+  background: #aaa;
+  color: #fff;
+  border-radius: 12px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 10px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box; }
+
+.page-composer__block-type-selector__loader {
+  display: none; }
+
+.page-composer__container__child__loader span {
+  margin-top: 11px; }
+
+.page-composer__container__child__edit {
+  display: block;
+  padding: 10px 15px 10px 27px;
+  cursor: pointer;
+  text-decoration: none !important;
+  color: #404040 !important;
+  border-left: 3px solid #f9f9f9; }
+
+.page-composer__container__child__right {
+  position: absolute;
+  top: 10px;
+  right: 5px; }
+
+.page-composer__container__child__remove {
+  display: none; }
+
+.page-composer__container__child__switch-enabled {
+  display: none; }
+
+.page-composer__container__child__enabled {
+  display: inline-block; }
+
+.page-composer__container__child:hover .page-composer__container__child__switch-enabled,
+.page-composer__container__child--expanded .page-composer__container__child__switch-enabled,
+.page-composer__container__child:hover .page-composer__container__child__remove,
+.page-composer__container__child--expanded .page-composer__container__child__remove {
+  display: inline-block; }
+
+.page-composer__container__child__switch-enabled .badge,
+.page-composer__container__child__remove .badge {
+  background-color: #f56954;
+  cursor: pointer; }
+
+.page-composer__container__child__remove__confirm {
+  display: none; }
+
+.page-composer__container__child__remove__confirm span {
+  border-radius: 2px;
+  background: #eee;
+  display: inline-block;
+  padding: 0 7px;
+  color: #fff;
+  cursor: pointer; }
+
+.page-composer__container__child__remove__confirm span.yes {
+  background-color: #00a65a; }
+
+.page-composer__container__child__remove__confirm span.cancel {
+  background-color: #f56954; }
+
+.page-composer__container__child__toggle {
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 10px; }
+
+.page-composer__container__child__toggle .fa-chevron-up {
+  display: none; }
+
+.page-composer__container__child--expanded .page-composer__container__child__toggle .fa-chevron-up {
+  display: inline-block; }
+
+.page-composer__container__child--expanded .page-composer__container__child__toggle .fa-chevron-down {
+  display: none; }
+
+.page-composer__container__child__edit:hover {
+  background: #fff;
+  border-left-color: #3c8dbc; }
+
+.page-composer__container__child--expanded .page-composer__container__child__edit {
+  border-left-color: #3c8dbc;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.35) inset; }
+
+.page-composer__container__child__edit:hover .page-composer__container__child__toggle {
+  display: inline-block; }
+
+.page-composer__container__child h4 {
+  margin: 0 !important;
+  font-size: 14px !important; }
+
+/*# sourceMappingURL=composer.css.map */
+
+{
+"version": 3,
+"mappings": "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",
+"sources": ["../composer.scss"],
+"names": [],
+"file": "composer.css"
+}
+/********************************************************************\
+   Page tree
+\********************************************************************/
+.page-tree {
+  list-style: none;
+  padding-left: 0;
+  padding-bottom: 10px;
+  margin-left: 15px;
+  margin-right: 15px; }
+
+.page-tree ul {
+  list-style: none;
+  padding-left: 30px; }
+
+.page-tree__item {
+  display: block;
+  padding: 7px 15px 7px 7px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  position: relative;
+  margin-bottom: 5px;
+  color: #444; }
+
+.page-tree__item .label {
+  font-size: 12px;
+  margin-top: 2px;
+  border-radius: 2px; }
+
+.page-tree__item .label-warning {
+  margin-right: 5px; }
+
+.page-tree__item .fa-caret-right {
+  position: absolute;
+  top: 9px;
+  left: -22px;
+  color: #3c8dbc; }
+
+.page-tree__item:hover {
+  background: #eee;
+  color: #000; }
+
+.page-tree__item__is-hybrid {
+  margin-right: 5px; }
+
+.page-tree__item.is-active {
+  border: 1px solid #3c8dbc; }
+
+.page-tree__item.is-active:after,
+.page-tree__item.is-active:before {
+  left: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none; }
+
+.page-tree__item.is-active:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-left-color: #fff;
+  border-width: 8px;
+  margin-top: -8px; }
+
+.page-tree__item.is-active:before {
+  border-color: rgba(255, 255, 255, 0);
+  border-left-color: #3c8dbc;
+  border-width: 9px;
+  margin-top: -9px; }
+
+.page-tree__item.is-active:hover:after {
+  border-left-color: #eee; }
+
+.page-tree__item.is-toggled .fa-caret-right {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg); }
+
+.page-tree__item__edit {
+  font-weight: bold; }
+
+.page-tree__item__edit:hover {
+  text-decoration: underline; }
+
+/**
+ * Toggleable tree
+ */
+.page-tree--toggleable li > ul {
+  display: none; }
+
+.page-tree--toggleable .page-tree__item {
+  margin-left: 25px; }
+
+.page-tree--toggleable .page-tree__item .fa-caret-right {
+  cursor: pointer; }
+
+.page-tree--toggleable .page-tree__item .fa-caret-right:after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: -10px;
+  right: -10px; }
+
+/*# sourceMappingURL=tree.css.map */
+
+{
+"version": 3,
+"mappings": ";;;AAIA,UAAW;EACP,UAAU,EAAE,IAAI;EAChB,YAAY,EAAE,CAAC;EACf,WAAW,EAAE,IAAI;EACjB,YAAY,EAAE,IAAI;;AAEtB,aAAc;EACV,UAAU,EAAE,IAAI;EAChB,YAAY,EAAE,IAAI;;AAEtB,gBAAiB;EACb,OAAO,EAAE,KAAK;EACd,OAAO,EAAE,gBAAgB;EACzB,MAAM,EAAE,cAAc;EACtB,aAAa,EAAE,GAAG;EAClB,QAAQ,EAAE,QAAQ;EAClB,aAAa,EAAE,GAAG;EAClB,KAAK,EAAE,IAAI;;AAEf,uBAAwB;EACpB,SAAS,EAAE,IAAI;EACf,UAAU,EAAE,GAAG;EACf,aAAa,EAAE,GAAG;;AAEtB,+BAAgC;EAC5B,YAAY,EAAE,GAAG;;AAErB,gCAAiC;EAC7B,QAAQ,EAAE,QAAQ;EAClB,GAAG,EAAE,GAAG;EACR,IAAI,EAAE,KAAK;EACX,KAAK,EAAE,OAAO;;AAElB,sBAAuB;EACnB,UAAU,EAAE,IAAI;EAChB,KAAK,EAAE,IAAI;;AAEf,2BAA4B;EACxB,YAAY,EAAE,GAAG;;AAErB,0BAA2B;EACvB,MAAM,EAAE,iBAAiB;;AAE7B;iCACkC;EAC9B,IAAI,EAAE,IAAI;EACV,GAAG,EAAE,GAAG;EACR,MAAM,EAAE,iBAAiB;EACzB,OAAO,EAAE,GAAG;EACZ,MAAM,EAAE,CAAC;EACT,KAAK,EAAE,CAAC;EACR,QAAQ,EAAE,QAAQ;EAClB,cAAc,EAAE,IAAI;;AAExB,gCAAiC;EAC7B,YAAY,EAAE,sBAAsB;EACpC,iBAAiB,EAAE,IAAI;EACvB,YAAY,EAAE,GAAG;EACjB,UAAU,EAAE,IAAI;;AAEpB,iCAAkC;EAC9B,YAAY,EAAE,sBAAsB;EACpC,iBAAiB,EAAE,OAAO;EAC1B,YAAY,EAAE,GAAG;EACjB,UAAU,EAAE,IAAI;;AAEpB,sCAAuC;EACnC,iBAAiB,EAAE,IAAI;;AAE3B,2CAA4C;EACxC,iBAAiB,EAAE,aAAa;EAChC,cAAc,EAAE,aAAa;EAC7B,YAAY,EAAE,aAAa;EAC3B,aAAa,EAAE,aAAa;EAC5B,SAAS,EAAE,aAAa;;AAE5B,sBAAuB;EACnB,WAAW,EAAE,IAAI;;AAErB,4BAA6B;EACzB,eAAe,EAAE,SAAS;;;;;AAM9B,8BAA+B;EAC3B,OAAO,EAAE,IAAI;;AAEjB,uCAAwC;EACpC,WAAW,EAAE,IAAI;;AAErB,uDAAwD;EACpD,MAAM,EAAE,OAAO;;AAEnB,6DAA8D;EAC1D,OAAO,EAAE,EAAE;EACX,QAAQ,EAAE,QAAQ;EAClB,GAAG,EAAE,IAAI;EACT,MAAM,EAAE,IAAI;EACZ,IAAI,EAAE,KAAK;EACX,KAAK,EAAE,KAAK",
+"sources": ["../tree.scss"],
+"names": [],
+"file": "tree.css"
+}

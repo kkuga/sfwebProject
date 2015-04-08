@@ -135,133 +135,132 @@ class __TwigTemplate_918d4a309dff54c46fbeecb816321219d205369ed1a60d8fe855608f5d9
         echo "    <div id=\"field_container_";
         echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
         echo "\" class=\"field-container\">
-        <span id=\"field_actions_";
+        <span id=\"field_widget_";
         // line 58
         echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
-        echo "\" class=\"field-actions\">
-            <span id=\"field_widget_";
-        // line 59
-        echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
         echo "\" class=\"field-short-description\">
-                ";
-        // line 60
+            ";
+        // line 59
         if ($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "id", array(0 => $this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "value", array())), "method")) {
-            // line 61
-            echo "                    ";
-            echo $this->env->getExtension('actions')->renderUri($this->env->getExtension('routing')->getUrl("sonata_admin_short_object_information", array("code" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 62
-(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "code", array()), "objectId" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 63
-(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "id", array(0 => $this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "value", array())), "method"), "uniqid" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 64
-(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "uniqid", array()), "linkParameters" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 65
-(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "options", array()), "link_parameters", array()))), array());
-            // line 67
+            // line 60
             echo "                ";
+            echo $this->env->getExtension('actions')->renderUri($this->env->getExtension('routing')->getUrl("sonata_admin_short_object_information", array("code" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 61
+(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "code", array()), "objectId" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 62
+(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "id", array(0 => $this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "value", array())), "method"), "uniqid" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 63
+(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "uniqid", array()), "linkParameters" => $this->getAttribute($this->getAttribute($this->getAttribute(            // line 64
+(isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "options", array()), "link_parameters", array()))), array());
+            // line 66
+            echo "            ";
         } elseif (($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : null), "field_description", array(), "any", false, true), "options", array(), "any", false, true), "placeholder", array(), "any", true, true) && $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "options", array()), "placeholder", array()))) {
+            // line 67
+            echo "                <span class=\"inner-field-short-description\">
+                    ";
             // line 68
-            echo "                    <span class=\"inner-field-short-description\">
-                        ";
-            // line 69
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "options", array()), "placeholder", array()), array(), "SonataAdminBundle"), "html", null, true);
             echo "
-                    </span>
-                ";
+                </span>
+            ";
         }
+        // line 71
+        echo "        </span>
+        <span id=\"field_actions_";
         // line 72
-        echo "            </span>
-
+        echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
+        echo "\" class=\"field-actions\">
             <span class=\"btn-group\">
                 ";
-        // line 75
+        // line 74
         if ((($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "hasroute", array(0 => "list"), "method") && $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "isGranted", array(0 => "LIST"), "method")) && (isset($context["btn_list"]) ? $context["btn_list"] : $this->getContext($context, "btn_list")))) {
-            // line 76
+            // line 75
             echo "                    <a  href=\"";
             echo twig_escape_filter($this->env, $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "generateUrl", array(0 => "list"), "method"), "html", null, true);
             echo "\"
                         onclick=\"return start_field_dialog_form_list_";
-            // line 77
+            // line 76
             echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
             echo "(this);\"
-                        class=\"btn btn-info btn-sm btn-outline sonata-ba-action\"
+                        class=\"btn btn-info btn-sm sonata-ba-action\"
                         title=\"";
-            // line 79
+            // line 78
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_list"]) ? $context["btn_list"] : $this->getContext($context, "btn_list")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "\"
                             >
                         <i class=\"fa fa-list\"></i>
                         ";
-            // line 82
+            // line 81
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_list"]) ? $context["btn_list"] : $this->getContext($context, "btn_list")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "
                     </a>
                 ";
         }
-        // line 85
+        // line 84
         echo "
                 ";
-        // line 86
+        // line 85
         if ((($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "hasroute", array(0 => "create"), "method") && $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "isGranted", array(0 => "CREATE"), "method")) && (isset($context["btn_add"]) ? $context["btn_add"] : $this->getContext($context, "btn_add")))) {
-            // line 87
+            // line 86
             echo "                    <a  href=\"";
             echo twig_escape_filter($this->env, $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "generateUrl", array(0 => "create"), "method"), "html", null, true);
             echo "\"
                         onclick=\"return start_field_dialog_form_add_";
-            // line 88
+            // line 87
             echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
             echo "(this);\"
-                        class=\"btn btn-success btn-sm btn-outline sonata-ba-action\"
+                        class=\"btn btn-success btn-sm sonata-ba-action\"
                         title=\"";
-            // line 90
+            // line 89
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_add"]) ? $context["btn_add"] : $this->getContext($context, "btn_add")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "\"
                             >
                         <i class=\"fa fa-plus-circle\"></i>
                         ";
-            // line 93
+            // line 92
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_add"]) ? $context["btn_add"] : $this->getContext($context, "btn_add")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "
                     </a>
                 ";
         }
-        // line 96
+        // line 95
         echo "            </span>
 
             <span class=\"btn-group\">
                 ";
-        // line 99
+        // line 98
         if ((($this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "hasRoute", array(0 => "delete"), "method") && $this->getAttribute($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "associationadmin", array()), "isGranted", array(0 => "DELETE"), "method")) && (isset($context["btn_delete"]) ? $context["btn_delete"] : $this->getContext($context, "btn_delete")))) {
-            // line 100
+            // line 99
             echo "                    <a  href=\"\"
                         onclick=\"return remove_selected_element_";
-            // line 101
+            // line 100
             echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
             echo "(this);\"
-                        class=\"btn btn-danger btn-sm btn-outline sonata-ba-action\"
+                        class=\"btn btn-danger btn-sm sonata-ba-action\"
                         title=\"";
-            // line 103
+            // line 102
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_delete"]) ? $context["btn_delete"] : $this->getContext($context, "btn_delete")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "\"
                             >
                         <i class=\"fa fa-minus-circle\"></i>
                         ";
-            // line 106
+            // line 105
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_delete"]) ? $context["btn_delete"] : $this->getContext($context, "btn_delete")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
             echo "
                     </a>
                 ";
         }
-        // line 109
+        // line 108
         echo "            </span>
         </span>
 
         <span style=\"display: none\" >
             ";
-        // line 114
+        // line 113
         echo "            ";
         echo $this->env->getExtension('form')->renderer->searchAndRenderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'widget', array("required" => false));
         echo "
         </span>
 
         <div class=\"modal fade\" id=\"field_dialog_";
-        // line 117
+        // line 116
         echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
         echo "\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">
             <div class=\"modal-dialog modal-lg\">
@@ -278,46 +277,46 @@ class __TwigTemplate_918d4a309dff54c46fbeecb816321219d205369ed1a60d8fe855608f5d9
     </div>
 
     ";
-        // line 131
+        // line 130
         $this->env->loadTemplate("SonataDoctrineORMAdminBundle:CRUD:edit_orm_many_association_script.html.twig")->display($context);
     }
 
-    // line 134
+    // line 133
     public function block_sonata_type_admin_widget($context, array $blocks = array())
     {
+        // line 134
+        echo "    ";
         // line 135
         echo "    ";
-        // line 136
-        echo "    ";
         if (($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_ONE"))) {
-            // line 137
+            // line 136
             echo "        ";
             $this->displayBlock("sonata_admin_orm_one_to_one_widget", $context, $blocks);
             echo "
     ";
-        } elseif (($this->getAttribute($this->getAttribute(        // line 138
+        } elseif (($this->getAttribute($this->getAttribute(        // line 137
 (isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_ONE"))) {
-            // line 139
+            // line 138
             echo "        ";
             $this->displayBlock("sonata_admin_orm_many_to_one_widget", $context, $blocks);
             echo "
     ";
-        } elseif (($this->getAttribute($this->getAttribute(        // line 140
+        } elseif (($this->getAttribute($this->getAttribute(        // line 139
 (isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_MANY"))) {
-            // line 141
+            // line 140
             echo "        ";
             $this->displayBlock("sonata_admin_orm_many_to_many_widget", $context, $blocks);
             echo "
     ";
-        } elseif (($this->getAttribute($this->getAttribute(        // line 142
+        } elseif (($this->getAttribute($this->getAttribute(        // line 141
 (isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_MANY"))) {
-            // line 143
+            // line 142
             echo "        ";
             $this->displayBlock("sonata_admin_orm_one_to_many_widget", $context, $blocks);
             echo "
     ";
         } else {
-            // line 145
+            // line 144
             echo "        INVALID MODE : ";
             echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
             echo "
@@ -325,26 +324,26 @@ class __TwigTemplate_918d4a309dff54c46fbeecb816321219d205369ed1a60d8fe855608f5d9
         }
     }
 
-    // line 149
+    // line 148
     public function block_sonata_type_collection_widget($context, array $blocks = array())
     {
-        // line 150
+        // line 149
         echo "    ";
         if (($this->getAttribute($this->getAttribute((isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_MANY"))) {
-            // line 151
+            // line 150
             echo "        ";
             $this->displayBlock("sonata_admin_orm_one_to_many_widget", $context, $blocks);
             echo "
     ";
-        } elseif (($this->getAttribute($this->getAttribute(        // line 152
+        } elseif (($this->getAttribute($this->getAttribute(        // line 151
 (isset($context["sonata_admin"]) ? $context["sonata_admin"] : $this->getContext($context, "sonata_admin")), "field_description", array()), "mappingtype", array()) == twig_constant("Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_MANY"))) {
-            // line 153
+            // line 152
             echo "        ";
             $this->displayBlock("sonata_admin_orm_many_to_many_widget", $context, $blocks);
             echo "
     ";
         } else {
-            // line 155
+            // line 154
             echo "        INVALID MODE : ";
             echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
             echo " - type : sonata_type_collection - mapping : ";
@@ -366,6 +365,6 @@ class __TwigTemplate_918d4a309dff54c46fbeecb816321219d205369ed1a60d8fe855608f5d9
 
     public function getDebugInfo()
     {
-        return array (  348 => 155,  342 => 153,  340 => 152,  335 => 151,  332 => 150,  329 => 149,  321 => 145,  315 => 143,  313 => 142,  308 => 141,  306 => 140,  301 => 139,  299 => 138,  294 => 137,  291 => 136,  289 => 135,  286 => 134,  282 => 131,  265 => 117,  258 => 114,  252 => 109,  246 => 106,  240 => 103,  235 => 101,  232 => 100,  230 => 99,  225 => 96,  219 => 93,  213 => 90,  208 => 88,  203 => 87,  201 => 86,  198 => 85,  192 => 82,  186 => 79,  181 => 77,  176 => 76,  174 => 75,  169 => 72,  163 => 69,  160 => 68,  157 => 67,  155 => 65,  154 => 64,  153 => 63,  152 => 62,  150 => 61,  148 => 60,  144 => 59,  140 => 58,  135 => 57,  132 => 56,  124 => 52,  122 => 51,  116 => 49,  114 => 48,  109 => 47,  107 => 46,  102 => 45,  100 => 44,  95 => 43,  93 => 42,  88 => 41,  86 => 40,  83 => 39,  80 => 37,  78 => 33,  75 => 32,  70 => 29,  67 => 28,  62 => 25,  59 => 24,  54 => 21,  51 => 20,  46 => 17,  43 => 16,  11 => 12,);
+        return array (  347 => 154,  341 => 152,  339 => 151,  334 => 150,  331 => 149,  328 => 148,  320 => 144,  314 => 142,  312 => 141,  307 => 140,  305 => 139,  300 => 138,  298 => 137,  293 => 136,  290 => 135,  288 => 134,  285 => 133,  281 => 130,  264 => 116,  257 => 113,  251 => 108,  245 => 105,  239 => 102,  234 => 100,  231 => 99,  229 => 98,  224 => 95,  218 => 92,  212 => 89,  207 => 87,  202 => 86,  200 => 85,  197 => 84,  191 => 81,  185 => 78,  180 => 76,  175 => 75,  173 => 74,  168 => 72,  165 => 71,  159 => 68,  156 => 67,  153 => 66,  151 => 64,  150 => 63,  149 => 62,  148 => 61,  146 => 60,  144 => 59,  140 => 58,  135 => 57,  132 => 56,  124 => 52,  122 => 51,  116 => 49,  114 => 48,  109 => 47,  107 => 46,  102 => 45,  100 => 44,  95 => 43,  93 => 42,  88 => 41,  86 => 40,  83 => 39,  80 => 37,  78 => 33,  75 => 32,  70 => 29,  67 => 28,  62 => 25,  59 => 24,  54 => 21,  51 => 20,  46 => 17,  43 => 16,  11 => 12,);
     }
 }

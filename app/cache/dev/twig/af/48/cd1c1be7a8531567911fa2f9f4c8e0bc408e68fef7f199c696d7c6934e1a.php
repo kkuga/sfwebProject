@@ -231,7 +231,7 @@ class __TwigTemplate_af48cd1c1be7a8531567911fa2f9f4c8e0bc408e68fef7f199c696d7c69
                     // line 84
                     echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
                     echo "(this);\"
-                        class=\"btn btn-success btn-sm btn-outline sonata-ba-action\"
+                        class=\"btn btn-success btn-sm sonata-ba-action\"
                         title=\"";
                     // line 86
                     echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_add"]) ? $context["btn_add"] : $this->getContext($context, "btn_add")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);
@@ -287,7 +287,7 @@ class __TwigTemplate_af48cd1c1be7a8531567911fa2f9f4c8e0bc408e68fef7f199c696d7c69
                     // line 107
                     echo twig_escape_filter($this->env, (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")), "html", null, true);
                     echo "(this);\"
-                            class=\"btn btn-success btn-sm btn-outline sonata-ba-action\"
+                            class=\"btn btn-success btn-sm sonata-ba-action\"
                             title=\"";
                     // line 109
                     echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans((isset($context["btn_add"]) ? $context["btn_add"] : $this->getContext($context, "btn_add")), array(), (isset($context["btn_catalogue"]) ? $context["btn_catalogue"] : $this->getContext($context, "btn_catalogue"))), "html", null, true);

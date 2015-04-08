@@ -6,10 +6,15 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Symfony\\Cmf\\Component\\Routing\\' => array($vendorDir . '/symfony-cmf/routing'),
+    'Symfony\\Cmf\\Bundle\\RoutingBundle\\' => array($vendorDir . '/symfony-cmf/routing-bundle'),
     'Symfony\\Bundle\\SwiftmailerBundle\\' => array($vendorDir . '/symfony/swiftmailer-bundle'),
     'Symfony\\Bundle\\MonologBundle\\' => array($vendorDir . '/symfony/monolog-bundle'),
     'Symfony\\Bundle\\AsseticBundle\\' => array($vendorDir . '/symfony/assetic-bundle'),
     'Sonata\\UserBundle\\' => array($vendorDir . '/sonata-project/user-bundle'),
+    'Sonata\\SeoBundle\\' => array($vendorDir . '/sonata-project/seo-bundle'),
+    'Sonata\\PageBundle\\' => array($vendorDir . '/sonata-project/page-bundle'),
+    'Sonata\\NotificationBundle\\' => array($vendorDir . '/sonata-project/notification-bundle'),
     'Sonata\\EasyExtendsBundle\\' => array($vendorDir . '/sonata-project/easy-extends-bundle'),
     'Sonata\\Doctrine\\Tests\\' => array($vendorDir . '/sonata-project/doctrine-extensions/tests'),
     'Sonata\\Doctrine\\' => array($vendorDir . '/sonata-project/doctrine-extensions/src'),
@@ -18,6 +23,7 @@ return array(
     'Sonata\\CoreBundle\\' => array($vendorDir . '/sonata-project/core-bundle'),
     'Sonata\\Cache\\Tests\\' => array($vendorDir . '/sonata-project/cache/test'),
     'Sonata\\Cache\\' => array($vendorDir . '/sonata-project/cache/lib'),
+    'Sonata\\CacheBundle\\' => array($vendorDir . '/sonata-project/cache-bundle'),
     'Sonata\\BlockBundle\\' => array($vendorDir . '/sonata-project/block-bundle'),
     'Sonata\\AdminBundle\\' => array($vendorDir . '/sonata-project/admin-bundle'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),

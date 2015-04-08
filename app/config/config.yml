@@ -43,6 +43,8 @@ assetic:
         #yui_css:
         #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
 
+
+                    
 # Doctrine Configuration
 doctrine:
     dbal:
@@ -62,7 +64,7 @@ doctrine:
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
-
+      
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
@@ -80,7 +82,8 @@ sonata_block:
         # Enable the SonataAdminBundle block
         sonata.admin.block.admin_list:
             contexts:   [admin]
-            
+        sonata.block.service.text:
+        sonata.block.service.rss:    
  #sonatauser
 sonata_user:
    security_acl: true
@@ -99,3 +102,94 @@ fos_user:
 
     service:
         user_manager: sonata.user.orm.user_manager  
+
+sonata_notification:
+    backend: sonata.notification.backend.runtime
+    
+sonata_cache:
+    caches:
+        esi:
+            token: an unique security key 
+            servers:
+                - varnishadm -T 127.0.0.1:2000 {{ COMMAND }} "{{ EXPRESSION }}"
+
+        ssi:
+            token: an unique security key 
+
+       
+        
+
+        symfony:
+            token: s3cur3 
+            php_cache_enabled: true 
+            types: [mytype1, mycustomtype2] 
+            servers:
+                - { domain: kooqit.local, ip: 127.0.0.1, port: 80}
+
+cmf_routing:
+    chain:
+        routers_by_id:
+            # enable the DynamicRouter with high priority to allow overwriting configured routes with content
+            #symfony_cmf_routing_extra.dynamic_router: 200
+            # enable the symfony default router with a lower priority
+            sonata.page.router: 150
+            router.default: 100
+
+sonata_page:
+    multisite: host 
+    use_streamed_response: true 
+    ignore_route_patterns:
+        - ^(.*)admin(.*)   
+        - ^_(.*)           
+
+    # Generates a snapshot when a page is saved (from the admin)
+    #direct_publication: false
+    ignore_routes:
+        - sonata_page_cache_esi
+        - sonata_page_cache_ssi
+        - sonata_page_js_sync_cache
+        - sonata_page_js_async_cache
+        - sonata_cache_esi
+        - sonata_cache_ssi
+        - sonata_cache_js_async
+        - sonata_cache_js_sync
+        - sonata_cache_apc
+
+    ignore_uri_patterns:
+        - ^/admin\/   # ignore admin route, ie route containing 'admin'
+
+    cache_invalidation:
+        service:  sonata.page.cache.invalidation.simple
+        recorder: sonata.page.cache.recorder
+        classes:
+            "Application\Sonata\PageBundle\Entity\Block": getId
+
+    default_template: default
+    templates:
+        default: { path: 'SonataPageBundle::layout.html.twig', name: 'default' }
+
+    # Assets loaded by default in template
+    assets:
+        stylesheets:
+            # Defaults:
+            - bundles/sonataadmin/vendor/bootstrap/dist/css/bootstrap.min.css
+            - bundles/sonatapage/sonata-page.front.min.css
+        javascripts:
+            # Defaults:
+            - bundles/sonataadmin/vendor/jquery/dist/jquery.min.js
+            - bundles/sonataadmin/vendor/bootstrap/dist/js/bootstrap.min.js
+            - bundles/sonatapage/sonata-page.front.min.js
+
+    page_defaults:
+        homepage: {decorate: false}
+
+    caches:
+        ssi:
+            token: an unique key # if not set a random value will be used
+
+        esi:
+            servers:
+                - varnishadm -T 127.0.0.1:2000 {{ COMMAND }} "{{ EXPRESSION }}"
+
+    is_inline_edition_on: false # set to true to keep the old behavior. the feature will be deleted in futur versions
+

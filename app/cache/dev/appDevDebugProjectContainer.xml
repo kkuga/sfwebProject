@@ -26,6 +26,13 @@
       <parameter key="FOSUserBundle">FOS\UserBundle\FOSUserBundle</parameter>
       <parameter key="SonataUserBundle">Sonata\UserBundle\SonataUserBundle</parameter>
       <parameter key="ApplicationSonataUserBundle">Application\Sonata\UserBundle\ApplicationSonataUserBundle</parameter>
+      <parameter key="SonataPageBundle">Sonata\PageBundle\SonataPageBundle</parameter>
+      <parameter key="SonataCacheBundle">Sonata\CacheBundle\SonataCacheBundle</parameter>
+      <parameter key="SonataSeoBundle">Sonata\SeoBundle\SonataSeoBundle</parameter>
+      <parameter key="CmfRoutingBundle">Symfony\Cmf\Bundle\RoutingBundle\CmfRoutingBundle</parameter>
+      <parameter key="SonataNotificationBundle">Sonata\NotificationBundle\SonataNotificationBundle</parameter>
+      <parameter key="ApplicationSonataNotificationBundle">Application\Sonata\NotificationBundle\ApplicationSonataNotificationBundle</parameter>
+      <parameter key="ApplicationSonataPageBundle">Application\Sonata\PageBundle\ApplicationSonataPageBundle</parameter>
       <parameter key="AcmeDemoBundle">Acme\DemoBundle\AcmeDemoBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
@@ -302,6 +309,12 @@
     <parameter key="security.access.always_authenticate_before_granting">false</parameter>
     <parameter key="security.authentication.hide_user_not_found">true</parameter>
     <parameter key="security.role_hierarchy.roles" type="collection">
+      <parameter key="ROLE_GESTIONNAIRE" type="collection">
+        <parameter>ROLE_USER</parameter>
+      </parameter>
+      <parameter key="ROLE_AGENT" type="collection">
+        <parameter>ROLE_USER</parameter>
+      </parameter>
       <parameter key="ROLE_ADMIN" type="collection">
         <parameter>ROLE_USER</parameter>
         <parameter>ROLE_SONATA_ADMIN</parameter>
@@ -312,6 +325,7 @@
       </parameter>
       <parameter key="SONATA" type="collection">
         <parameter>ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT</parameter>
+        <parameter>ROLE_SONATA_PAGE_ADMIN_BLOCK_EDIT</parameter>
       </parameter>
     </parameter>
     <parameter key="security.acl.permission_granting_strategy.class">Symfony\Component\Security\Acl\Domain\PermissionGrantingStrategy</parameter>
@@ -637,6 +651,20 @@
         <parameter key="cache">sonata.cache.noop</parameter>
         <parameter key="settings" type="collection"/>
       </parameter>
+      <parameter key="sonata.block.service.text" type="collection">
+        <parameter key="contexts" type="collection">
+          <parameter>cms</parameter>
+        </parameter>
+        <parameter key="cache">sonata.cache.noop</parameter>
+        <parameter key="settings" type="collection"/>
+      </parameter>
+      <parameter key="sonata.block.service.rss" type="collection">
+        <parameter key="contexts" type="collection">
+          <parameter>cms</parameter>
+        </parameter>
+        <parameter key="cache">sonata.cache.noop</parameter>
+        <parameter key="settings" type="collection"/>
+      </parameter>
     </parameter>
     <parameter key="sonata_block.blocks_by_class" type="collection"/>
     <parameter key="sonata_block.cache_blocks" type="collection">
@@ -644,6 +672,8 @@
         <parameter key="sonata.user.block.menu">sonata.cache.noop</parameter>
         <parameter key="sonata.user.block.account">sonata.cache.noop</parameter>
         <parameter key="sonata.admin.block.admin_list">sonata.cache.noop</parameter>
+        <parameter key="sonata.block.service.text">sonata.cache.noop</parameter>
+        <parameter key="sonata.block.service.rss">sonata.cache.noop</parameter>
       </parameter>
     </parameter>
     <parameter key="knp_menu.factory.class">Knp\Menu\MenuFactory</parameter>
@@ -846,6 +876,8 @@
       <parameter>Default</parameter>
     </parameter>
     <parameter key="sonata.user.admin.groupname">sonata_user</parameter>
+    <parameter key="sonata.user.block.breadcrumb_index.class">Sonata\UserBundle\Block\Breadcrumb\UserIndexBreadcrumbBlockService</parameter>
+    <parameter key="sonata.user.block.breadcrumb_profile.class">Sonata\UserBundle\Block\Breadcrumb\UserProfileBreadcrumbBlockService</parameter>
     <parameter key="security.acl.user_voter.class">Sonata\UserBundle\Security\Authorization\Voter\UserAclVoter</parameter>
     <parameter key="sonata.user.admin.user.class">Sonata\UserBundle\Admin\Entity\UserAdmin</parameter>
     <parameter key="sonata.user.admin.group.class">Sonata\UserBundle\Admin\Entity\GroupAdmin</parameter>
@@ -882,6 +914,99 @@
       <parameter>Registration</parameter>
       <parameter>Default</parameter>
     </parameter>
+    <parameter key="sonata.page.cms_manager.page.class">Sonata\PageBundle\CmsManager\CmsPageManager</parameter>
+    <parameter key="sonata.page.cms_manager.snapshot.class">Sonata\PageBundle\CmsManager\CmsSnapshotManager</parameter>
+    <parameter key="sonata.page.cms_manager_selector.class">Sonata\PageBundle\CmsManager\CmsManagerSelector</parameter>
+    <parameter key="sonata.page.decorator_strategy.class">Sonata\PageBundle\CmsManager\DecoratorStrategy</parameter>
+    <parameter key="sonata.page.response_listener.class">Sonata\PageBundle\Listener\ResponseListener</parameter>
+    <parameter key="sonata.page.request_listener.class">Sonata\PageBundle\Listener\RequestListener</parameter>
+    <parameter key="sonata.page.site.selector.host.class">Sonata\PageBundle\Site\HostSiteSelector</parameter>
+    <parameter key="sonata.page.site.selector.host_by_locale.class">Sonata\PageBundle\Site\HostByLocaleSiteSelector</parameter>
+    <parameter key="sonata.page.site.selector.host_with_path.class">Sonata\PageBundle\Site\HostPathSiteSelector</parameter>
+    <parameter key="sonata.page.site.selector.host_with_path_by_locale.class">Sonata\PageBundle\Site\HostPathByLocaleSiteSelector</parameter>
+    <parameter key="sonata.page.router.class">Sonata\PageBundle\Route\CmsPageRouter</parameter>
+    <parameter key="sonata.page.route.page.generator.class">Sonata\PageBundle\Route\RoutePageGenerator</parameter>
+    <parameter key="sonata.page.service.manager.class">Sonata\PageBundle\Page\PageServiceManager</parameter>
+    <parameter key="sonata.page.template.manager.class">Sonata\PageBundle\Page\TemplateManager</parameter>
+    <parameter key="sonata.page.service.default.class">Sonata\PageBundle\Page\Service\DefaultPageService</parameter>
+    <parameter key="sonata.page.admin.page.class">Sonata\PageBundle\Admin\PageAdmin</parameter>
+    <parameter key="sonata.page.admin.page.controller">SonataPageBundle:PageAdmin</parameter>
+    <parameter key="sonata.page.admin.page.translation_domain">SonataPageBundle</parameter>
+    <parameter key="sonata.page.admin.site.class">Sonata\PageBundle\Admin\SiteAdmin</parameter>
+    <parameter key="sonata.page.admin.site.controller">SonataPageBundle:SiteAdmin</parameter>
+    <parameter key="sonata.page.admin.site.translation_domain">SonataPageBundle</parameter>
+    <parameter key="sonata.page.admin.block.class">Sonata\PageBundle\Admin\BlockAdmin</parameter>
+    <parameter key="sonata.page.admin.block.controller">SonataPageBundle:BlockAdmin</parameter>
+    <parameter key="sonata.page.admin.block.translation_domain">SonataPageBundle</parameter>
+    <parameter key="sonata.page.admin.shared_block.class">Sonata\PageBundle\Admin\SharedBlockAdmin</parameter>
+    <parameter key="sonata.page.admin.shared_block.controller">SonataPageBundle:BlockAdmin</parameter>
+    <parameter key="sonata.page.admin.shared_block.translation_domain">SonataPageBundle</parameter>
+    <parameter key="sonata.page.admin.snapshot.class">Sonata\PageBundle\Admin\SnapshotAdmin</parameter>
+    <parameter key="sonata.page.admin.snapshot.controller">SonataPageBundle:SnapshotAdmin</parameter>
+    <parameter key="sonata.page.admin.snapshot.translation_domain">SonataPageBundle</parameter>
+    <parameter key="sonata.page.block.container.class">Sonata\PageBundle\Block\ContainerBlockService</parameter>
+    <parameter key="sonata.page.block.children_pages.class">Sonata\PageBundle\Block\ChildrenPagesBlockService</parameter>
+    <parameter key="sonata.page.block.ajax.class">Sonata\PageBundle\Controller\AjaxController</parameter>
+    <parameter key="sonata.page.block.breadcrumb.class">Sonata\PageBundle\Block\BreadcrumbBlockService</parameter>
+    <parameter key="sonata.page.block.shared_block.class">Sonata\PageBundle\Block\SharedBlockBlockService</parameter>
+    <parameter key="sonata.page.manager.page.class">Sonata\PageBundle\Entity\PageManager</parameter>
+    <parameter key="sonata.page.manager.block.class">Sonata\PageBundle\Entity\BlockManager</parameter>
+    <parameter key="sonata.page.manager.snapshot.class">Sonata\PageBundle\Entity\SnapshotManager</parameter>
+    <parameter key="sonata.page.manager.site.class">Sonata\PageBundle\Entity\SiteManager</parameter>
+    <parameter key="sonata.page.block_interactor.class">Sonata\PageBundle\Entity\BlockInteractor</parameter>
+    <parameter key="sonata.page.transformer.class">Sonata\PageBundle\Entity\Transformer</parameter>
+    <parameter key="sonata.page.assets" type="collection">
+      <parameter key="stylesheets" type="collection">
+        <parameter>bundles/sonataadmin/vendor/bootstrap/dist/css/bootstrap.min.css</parameter>
+        <parameter>bundles/sonatapage/sonata-page.front.min.css</parameter>
+      </parameter>
+      <parameter key="javascripts" type="collection">
+        <parameter>bundles/sonataadmin/vendor/jquery/dist/jquery.min.js</parameter>
+        <parameter>bundles/sonataadmin/vendor/bootstrap/dist/js/bootstrap.min.js</parameter>
+        <parameter>bundles/sonatapage/sonata-page.front.min.js</parameter>
+      </parameter>
+    </parameter>
+    <parameter key="sonata.page.slugify_service">sonata.core.slugify.native</parameter>
+    <parameter key="sonata.page.is_inline_edition_on">false</parameter>
+    <parameter key="sonata.page.site.class">Application\Sonata\PageBundle\Entity\Site</parameter>
+    <parameter key="sonata.page.block.class">Application\Sonata\PageBundle\Entity\Block</parameter>
+    <parameter key="sonata.page.snapshot.class">Application\Sonata\PageBundle\Entity\Snapshot</parameter>
+    <parameter key="sonata.page.page.class">Application\Sonata\PageBundle\Entity\Page</parameter>
+    <parameter key="sonata.page.admin.site.entity">Application\Sonata\PageBundle\Entity\Site</parameter>
+    <parameter key="sonata.page.admin.block.entity">Application\Sonata\PageBundle\Entity\Block</parameter>
+    <parameter key="sonata.page.admin.snapshot.entity">Application\Sonata\PageBundle\Entity\Snapshot</parameter>
+    <parameter key="sonata.page.admin.page.entity">Application\Sonata\PageBundle\Entity\Page</parameter>
+    <parameter key="sonata.seo.block.social.container.class">Sonata\SeoBundle\Block\Social\SocialBlockContainer</parameter>
+    <parameter key="sonata.seo.block.email.share_button.class">Sonata\SeoBundle\Block\Social\EmailShareButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.facebook.like_box.class">Sonata\SeoBundle\Block\Social\FacebookLikeBoxBlockService</parameter>
+    <parameter key="sonata.seo.block.facebook.like_button.class">Sonata\SeoBundle\Block\Social\FacebookLikeButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.facebook.send_button.class">Sonata\SeoBundle\Block\Social\FacebookSendButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.facebook.share_button.class">Sonata\SeoBundle\Block\Social\FacebookShareButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.twitter.share_button.class">Sonata\SeoBundle\Block\Social\TwitterShareButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.twitter.follow_button.class">Sonata\SeoBundle\Block\Social\TwitterFollowButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.twitter.hashtag_button.class">Sonata\SeoBundle\Block\Social\TwitterHashtagButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.twitter.mention_button.class">Sonata\SeoBundle\Block\Social\TwitterMentionButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.twitter.embed.class">Sonata\SeoBundle\Block\Social\TwitterEmbedTweetBlockService</parameter>
+    <parameter key="sonata.seo.block.pinterest.pin_button.class">Sonata\SeoBundle\Block\Social\PinterestPinButtonBlockService</parameter>
+    <parameter key="sonata.seo.block.breadcrumb.homepage.class">Sonata\SeoBundle\Block\Breadcrumb\HomepageBreadcrumbBlockService</parameter>
+    <parameter key="sonata.seo.exporter.database_source_iterator.class">Exporter\Source\DoctrineDBALConnectionSourceIterator</parameter>
+    <parameter key="sonata.seo.exporter.sitemap_source_iterator.class">Exporter\Source\SymfonySitemapSourceIterator</parameter>
+    <parameter key="sonata.seo.page.default.class">Sonata\SeoBundle\Seo\SeoPage</parameter>
+    <parameter key="sonata.seo.twig.extension.class">Sonata\SeoBundle\Twig\Extension\SeoExtension</parameter>
+    <parameter key="sonata.seo.sitemap.manager.class">Sonata\SeoBundle\Sitemap\SourceManager</parameter>
+    <parameter key="cmf_routing.chain_router.class">Symfony\Cmf\Component\Routing\ChainRouter</parameter>
+    <parameter key="cmf_routing.replace_symfony_router">true</parameter>
+    <parameter key="cmf_routing.route_type_type.class">Symfony\Cmf\Bundle\RoutingBundle\Form\Type\RouteTypeType</parameter>
+    <parameter key="sonata.notification.backend">sonata.notification.backend.runtime</parameter>
+    <parameter key="sonata.notification.message.class">Application\Sonata\NotificationBundle\Entity\Message</parameter>
+    <parameter key="sonata.notification.admin.message.entity">Application\Sonata\NotificationBundle\Entity\Message</parameter>
+    <parameter key="sonata.notification.manager.message.entity">Application\Sonata\NotificationBundle\Entity\Message</parameter>
+    <parameter key="sonata.notification.event.iteration_listeners" type="collection">
+      <parameter>sonata.notification.event.doctrine_optimize</parameter>
+    </parameter>
+    <parameter key="sonata.notification.admin.message.class">Sonata\NotificationBundle\Admin\MessageAdmin</parameter>
+    <parameter key="sonata.notification.admin.message.controller">SonataNotificationBundle:MessageAdmin</parameter>
+    <parameter key="sonata.notification.admin.message.translation_domain">SonataNotificationBundle</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -1184,6 +1309,12 @@
       <tag name="monolog.logger" channel="request"/>
       <argument type="service" id="kernel"/>
     </service>
+    <service id="controller_resolver" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver" public="false">
+      <tag name="monolog.logger" channel="request"/>
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="controller_name_converter"/>
+      <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
+    </service>
     <service id="response_listener" class="Symfony\Component\HttpKernel\EventListener\ResponseListener">
       <tag name="kernel.event_subscriber"/>
       <argument>UTF-8</argument>
@@ -1194,7 +1325,7 @@
     <service id="locale_listener" class="Symfony\Component\HttpKernel\EventListener\LocaleListener">
       <tag name="kernel.event_subscriber"/>
       <argument>fr</argument>
-      <argument type="service" id="router" on-invalid="ignore"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="ignore"/>
       <argument type="service" id="request_stack"/>
     </service>
     <service id="http_kernel" class="Symfony\Component\HttpKernel\DependencyInjection\ContainerAwareHttpKernel">
@@ -1228,7 +1359,7 @@
         <argument type="service">
           <service class="Symfony\Bundle\FrameworkBundle\CacheWarmer\RouterCacheWarmer" public="false">
             <tag name="kernel.cache_warmer"/>
-            <argument type="service" id="router"/>
+            <argument type="service" id="cmf_routing.router"/>
           </service>
         </argument>
         <argument type="service">
@@ -2887,6 +3018,222 @@
         <argument>zh_TW</argument>
         <argument>SonataUserBundle</argument>
       </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.bg.xliff</argument>
+        <argument>bg</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.de.xliff</argument>
+        <argument>de</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.en.xliff</argument>
+        <argument>en</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.es.xliff</argument>
+        <argument>es</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.fr.xliff</argument>
+        <argument>fr</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.ja.xliff</argument>
+        <argument>ja</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.nl.xliff</argument>
+        <argument>nl</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.pt_BR.xliff</argument>
+        <argument>pt_BR</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.sk.xliff</argument>
+        <argument>sk</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\SonataPageBundle.sl.xliff</argument>
+        <argument>sl</argument>
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.de.xliff</argument>
+        <argument>de</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.en.xliff</argument>
+        <argument>en</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.es.xliff</argument>
+        <argument>es</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.fr.xliff</argument>
+        <argument>fr</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.ja.xliff</argument>
+        <argument>ja</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.nl.xliff</argument>
+        <argument>nl</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.pt_BR.xliff</argument>
+        <argument>pt_BR</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.sk.xliff</argument>
+        <argument>sk</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/translations\validators.sl.xliff</argument>
+        <argument>sl</argument>
+        <argument>validators</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\seo-bundle/Resources/translations\SonataSeoBundle.en.xliff</argument>
+        <argument>en</argument>
+        <argument>SonataSeoBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\seo-bundle/Resources/translations\SonataSeoBundle.fr.xliff</argument>
+        <argument>fr</argument>
+        <argument>SonataSeoBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\seo-bundle/Resources/translations\SonataSeoBundle.nl.xliff</argument>
+        <argument>nl</argument>
+        <argument>SonataSeoBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.de.xliff</argument>
+        <argument>de</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.en.xliff</argument>
+        <argument>en</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.fr.xliff</argument>
+        <argument>fr</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.it.xliff</argument>
+        <argument>it</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.nl.xliff</argument>
+        <argument>nl</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle/Resources/translations\CmfRoutingBundle.pl.xliff</argument>
+        <argument>pl</argument>
+        <argument>CmfRoutingBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.cs.xliff</argument>
+        <argument>cs</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.de.xliff</argument>
+        <argument>de</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.en.xliff</argument>
+        <argument>en</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.es.xliff</argument>
+        <argument>es</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.fr.xliff</argument>
+        <argument>fr</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.nl.xliff</argument>
+        <argument>nl</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.sk.xliff</argument>
+        <argument>sk</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="addResource">
+        <argument>xliff</argument>
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle/Resources/translations\SonataNotificationBundle.sl.xliff</argument>
+        <argument>sl</argument>
+        <argument>SonataNotificationBundle</argument>
+      </call>
     </service>
     <service id="translation.loader.php" class="Symfony\Component\Translation\Loader\PhpFileLoader">
       <tag name="translation.loader" alias="php"/>
@@ -3114,6 +3461,78 @@
         <argument>0</argument>
       </call>
       <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>sonata.page.site.selector.host</argument>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>47</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>sonata.page.site.selector.host</argument>
+          <argument>onKernelRequestRedirect</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument>sonata.page.response_listener</argument>
+          <argument>onCoreResponse</argument>
+        </argument>
+        <argument>-1</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>sonata.page.request_listener</argument>
+          <argument>onCoreRequest</argument>
+        </argument>
+        <argument>30</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>security.interactive_login</argument>
+        <argument type="collection">
+          <argument>sonata.page.cms_manager_selector</argument>
+          <argument>onSecurityInteractiveLogin</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument>sonata.page.kernel.exception_listener</argument>
+          <argument>onKernelException</argument>
+        </argument>
+        <argument>-127</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>sonata.block.event.breadcrumb</argument>
+        <argument type="collection">
+          <argument>sonata.seo.event.breadcrumb</argument>
+          <argument>onBlock</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.terminate</argument>
+        <argument type="collection">
+          <argument>sonata.notification.backend.postpone</argument>
+          <argument>onEvent</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>sonata.notification.event.message_iterate_event</argument>
+        <argument type="collection">
+          <argument>sonata.notification.event.doctrine_optimize</argument>
+          <argument>iterate</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
         <argument>kernel.controller</argument>
         <argument type="collection">
           <argument>acme.demo.listener</argument>
@@ -3219,14 +3638,7 @@
       </call>
     </service>
     <service id="debug.controller_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableControllerResolver">
-      <argument type="service">
-        <service class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver" public="false">
-          <tag name="monolog.logger" channel="request"/>
-          <argument type="service" id="service_container"/>
-          <argument type="service" id="controller_name_converter"/>
-          <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
-        </service>
-      </argument>
+      <argument type="service" id="controller_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
     <service id="debug.deprecation_logger_listener" class="Symfony\Component\HttpKernel\EventListener\ErrorsLoggerListener">
@@ -3363,6 +3775,11 @@
               <argument key="sonata_user_profile">sonata.user.profile.form.type</argument>
               <argument key="sonata_user_gender">sonata.user.form.gender_list</argument>
               <argument key="sonata_user_registration">sonata.user.registration.form.type</argument>
+              <argument key="sonata_page_selector">sonata.page.form.type.page_selector</argument>
+              <argument key="sonata_page_create_snapshot">sonata.page.form.create_snapshot</argument>
+              <argument key="sonata_page_template">sonata.page.form.template_choice</argument>
+              <argument key="sonata_page_type_choice">sonata.page.form.page_type_choice</argument>
+              <argument key="cmf_routing_route_type">cmf_routing.route_type_form_type</argument>
             </argument>
             <argument type="collection">
               <argument key="form" type="collection">
@@ -3565,7 +3982,7 @@
     </service>
     <service id="templating.helper.router" class="Symfony\Bundle\FrameworkBundle\Templating\Helper\RouterHelper">
       <tag name="templating.helper" alias="router"/>
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
     </service>
     <service id="templating.helper.actions" class="Symfony\Bundle\FrameworkBundle\Templating\Helper\ActionsHelper">
       <tag name="templating.helper" alias="actions"/>
@@ -3619,6 +4036,9 @@
         <argument type="collection">
           <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony\symfony\src\Symfony\Component\Form/Resources/config/validation.xml</argument>
           <argument>C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\validation.xml</argument>
+          <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\validation.xml</argument>
+          <argument>C:\xampp\htdocs\symfonyWeb\vendor\symfony-cmf\routing-bundle\Resources\config\validation.xml</argument>
+          <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\validation.xml</argument>
         </argument>
       </call>
       <call method="enableAnnotationMapping">
@@ -3654,6 +4074,7 @@
         <argument key="doctrine.orm.validator.unique">doctrine.orm.validator.unique</argument>
         <argument key="sonata.core.validator.inline">sonata.core.validator.inline</argument>
         <argument key="sonata.admin.validator.inline">sonata.admin.validator.inline</argument>
+        <argument key="sonata.page.validator.unique_url">sonata.page.validator.unique_url</argument>
       </argument>
     </service>
     <service id="validator.expression" class="Symfony\Component\Validator\Constraints\ExpressionValidator">
@@ -3888,6 +4309,27 @@
         </service>
       </argument>
     </service>
+    <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router" public="false">
+      <tag name="monolog.logger" channel="router"/>
+      <argument type="service" id="service_container"/>
+      <argument>C:\xampp\htdocs\symfonyWeb\app\cache\dev/assetic/routing.yml</argument>
+      <argument type="collection">
+        <argument key="cache_dir">C:\xampp\htdocs\symfonyWeb\app\cache\dev</argument>
+        <argument key="debug">true</argument>
+        <argument key="generator_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
+        <argument key="generator_base_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
+        <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper</argument>
+        <argument key="generator_cache_class">appDevUrlGenerator</argument>
+        <argument key="matcher_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
+        <argument key="matcher_base_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
+        <argument key="matcher_dumper_class">Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper</argument>
+        <argument key="matcher_cache_class">appDevUrlMatcher</argument>
+        <argument key="strict_requirements">true</argument>
+        <argument key="resource_type">yaml</argument>
+      </argument>
+      <argument type="service" id="router.request_context" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.router" on-invalid="ignore"/>
+    </service>
     <service id="router.request_context" class="Symfony\Component\Routing\RequestContext" public="false">
       <argument></argument>
       <argument>GET</argument>
@@ -3899,7 +4341,7 @@
     <service id="router_listener" class="Symfony\Component\HttpKernel\EventListener\RouterListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="request"/>
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
       <argument type="service" id="router.request_context" on-invalid="ignore"/>
       <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
       <argument type="service" id="request_stack"/>
@@ -3922,7 +4364,7 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>552030ae11558</argument>
+            <argument>5522b328db6f0</argument>
           </service>
         </argument>
         <argument type="service">
@@ -3936,7 +4378,7 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>552030ae11558</argument>
+            <argument>5522b328db6f0</argument>
           </service>
         </argument>
       </argument>
@@ -4025,6 +4467,12 @@
     </service>
     <service id="security.role_hierarchy" class="Symfony\Component\Security\Core\Role\RoleHierarchy" public="false">
       <argument type="collection">
+        <argument key="ROLE_GESTIONNAIRE" type="collection">
+          <argument>ROLE_USER</argument>
+        </argument>
+        <argument key="ROLE_AGENT" type="collection">
+          <argument>ROLE_USER</argument>
+        </argument>
         <argument key="ROLE_ADMIN" type="collection">
           <argument>ROLE_USER</argument>
           <argument>ROLE_SONATA_ADMIN</argument>
@@ -4035,6 +4483,7 @@
         </argument>
         <argument key="SONATA" type="collection">
           <argument>ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT</argument>
+          <argument>ROLE_SONATA_PAGE_ADMIN_BLOCK_EDIT</argument>
         </argument>
       </argument>
     </service>
@@ -4065,8 +4514,8 @@
       <argument type="service" id="debug.event_dispatcher"/>
     </service>
     <service id="security.http_utils" class="Symfony\Component\Security\Http\HttpUtils" public="false">
-      <argument type="service" id="router" on-invalid="null"/>
-      <argument type="service" id="router" on-invalid="null"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="null"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="null"/>
     </service>
     <service id="security.validator.user_password" class="Symfony\Component\Security\Core\Validator\Constraints\UserPasswordValidator">
       <tag name="validator.constraint_validator" alias="security.validator.user_password"/>
@@ -4189,7 +4638,7 @@
     <service id="templating.helper.logout_url" class="Symfony\Bundle\SecurityBundle\Templating\Helper\LogoutUrlHelper">
       <tag name="templating.helper" alias="logout_url"/>
       <argument type="service" id="service_container"/>
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
       <call method="registerListener">
         <argument>admin</argument>
         <argument>/admin/logout</argument>
@@ -4300,7 +4749,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.context"/>
-            <argument>552030ae11558</argument>
+            <argument>5522b328db6f0</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
           </service>
         </argument>
@@ -4404,7 +4853,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.context"/>
-            <argument>552030ae11558</argument>
+            <argument>5522b328db6f0</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
           </service>
         </argument>
@@ -4513,7 +4962,7 @@
         <argument type="service">
           <service class="Symfony\Bridge\Twig\Extension\RoutingExtension" public="false">
             <tag name="twig.extension"/>
-            <argument type="service" id="router"/>
+            <argument type="service" id="cmf_routing.router"/>
           </service>
         </argument>
       </call>
@@ -4634,6 +5083,32 @@
         <argument type="service" id="sonata.admin.twig.extension"/>
       </call>
       <call method="addExtension">
+        <argument type="service">
+          <service class="Sonata\PageBundle\Twig\Extension\PageExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="sonata.page.cms_manager_selector"/>
+            <argument type="service" id="sonata.page.site.selector.host"/>
+            <argument type="service" id="cmf_routing.router"/>
+            <argument type="service" id="sonata.block.templating.helper"/>
+            <argument type="service">
+              <service class="Symfony\Bridge\Twig\Extension\HttpKernelExtension" public="false">
+                <tag name="twig.extension"/>
+                <argument type="service" id="fragment.handler"/>
+              </service>
+            </argument>
+          </service>
+        </argument>
+      </call>
+      <call method="addExtension">
+        <argument type="service">
+          <service class="Sonata\SeoBundle\Twig\Extension\SeoExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="sonata.seo.page.default"/>
+            <argument>UTF-8</argument>
+          </service>
+        </argument>
+      </call>
+      <call method="addExtension">
         <argument type="service" id="twig.extension.acme.demo"/>
       </call>
       <call method="addExtension">
@@ -4658,6 +5133,10 @@
       <call method="addGlobal">
         <argument>sonata_user</argument>
         <argument type="service" id="sonata.user.twig.global"/>
+      </call>
+      <call method="addGlobal">
+        <argument>sonata_page</argument>
+        <argument type="service" id="sonata.page.twig.global"/>
       </call>
     </service>
     <service id="twig.translation.extractor" class="Symfony\Bridge\Twig\Translation\TwigExtractor">
@@ -4841,6 +5320,9 @@
               </service>
             </argument>
           </call>
+          <call method="addEventSubscriber">
+            <argument type="service" id="sonata.cache.orm.event_subscriber"/>
+          </call>
           <call method="addEventListener">
             <argument type="collection">
               <argument>postGenerateSchema</argument>
@@ -4897,6 +5379,10 @@
               <argument key="FOSUserBundle">FOS\UserBundle\Entity</argument>
               <argument key="SonataUserBundle">Sonata\UserBundle\Entity</argument>
               <argument key="ApplicationSonataUserBundle">Application\Sonata\UserBundle\Entity</argument>
+              <argument key="SonataPageBundle">Sonata\PageBundle\Entity</argument>
+              <argument key="SonataNotificationBundle">Sonata\NotificationBundle\Entity</argument>
+              <argument key="ApplicationSonataNotificationBundle">Application\Sonata\NotificationBundle\Entity</argument>
+              <argument key="ApplicationSonataPageBundle">Application\Sonata\PageBundle\Entity</argument>
             </argument>
           </call>
           <call method="setMetadataCacheImpl">
@@ -4929,6 +5415,10 @@
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
                       </argument>
                       <call method="setGlobalBasename">
                         <argument>mapping</argument>
@@ -4944,6 +5434,10 @@
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
                       </argument>
                       <call method="setGlobalBasename">
                         <argument>mapping</argument>
@@ -4959,6 +5453,10 @@
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
                         <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
                       </argument>
                       <call method="setGlobalBasename">
                         <argument>mapping</argument>
@@ -4966,6 +5464,82 @@
                     </service>
                   </argument>
                   <argument>Application\Sonata\UserBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver" public="false">
+                      <argument type="collection">
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
+                      </argument>
+                      <call method="setGlobalBasename">
+                        <argument>mapping</argument>
+                      </call>
+                    </service>
+                  </argument>
+                  <argument>Sonata\PageBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver" public="false">
+                      <argument type="collection">
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
+                      </argument>
+                      <call method="setGlobalBasename">
+                        <argument>mapping</argument>
+                      </call>
+                    </service>
+                  </argument>
+                  <argument>Sonata\NotificationBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver" public="false">
+                      <argument type="collection">
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
+                      </argument>
+                      <call method="setGlobalBasename">
+                        <argument>mapping</argument>
+                      </call>
+                    </service>
+                  </argument>
+                  <argument>Application\Sonata\NotificationBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver" public="false">
+                      <argument type="collection">
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\friendsofsymfony\user-bundle\FOS\UserBundle\Resources\config\doctrine">FOS\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\user-bundle\Resources\config\doctrine">Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle\Resources\config\doctrine">Application\Sonata\UserBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle\Resources\config\doctrine">Sonata\PageBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\notification-bundle\Resources\config\doctrine">Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle\Resources\config\doctrine">Application\Sonata\NotificationBundle\Entity</argument>
+                        <argument key="C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle\Resources\config\doctrine">Application\Sonata\PageBundle\Entity</argument>
+                      </argument>
+                      <call method="setGlobalBasename">
+                        <argument>mapping</argument>
+                      </call>
+                    </service>
+                  </argument>
+                  <argument>Application\Sonata\PageBundle\Entity</argument>
                 </call>
               </service>
             </argument>
@@ -5203,7 +5777,8 @@
     <service id="sonata.block.form.type.container_template" class="Sonata\BlockBundle\Form\Type\ContainerTemplateType">
       <tag name="form.type" alias="sonata_type_container_template_choice"/>
       <argument type="collection">
-        <argument key="SonataBlockBundle:Block:block_container.html.twig">SonataBlockBundle default template</argument>
+        <argument key="SonataPageBundle:Block:block_container.html.twig">SonataPageBundle default template</argument>
+        <argument key="SonataSeoBundle:Block:block_social_container.html.twig">SonataSeoBundle (to contain social buttons)</argument>
       </argument>
     </service>
     <service id="sonata.block.manager" class="Sonata\BlockBundle\Block\BlockServiceManager" public="false">
@@ -5223,12 +5798,16 @@
       <call method="add">
         <argument>sonata.block.service.text</argument>
         <argument>sonata.block.service.text</argument>
-        <argument type="collection"/>
+        <argument type="collection">
+          <argument>cms</argument>
+        </argument>
       </call>
       <call method="add">
         <argument>sonata.block.service.rss</argument>
         <argument>sonata.block.service.rss</argument>
-        <argument type="collection"/>
+        <argument type="collection">
+          <argument>cms</argument>
+        </argument>
       </call>
       <call method="add">
         <argument>sonata.block.service.menu</argument>
@@ -5271,6 +5850,96 @@
           <argument>cms</argument>
         </argument>
       </call>
+      <call method="add">
+        <argument>sonata.user.block.breadcrumb_index</argument>
+        <argument>sonata.user.block.breadcrumb_index</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.user.block.breadcrumb_profile</argument>
+        <argument>sonata.user.block.breadcrumb_profile</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.page.block.container</argument>
+        <argument>sonata.page.block.container</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.page.block.children_pages</argument>
+        <argument>sonata.page.block.children_pages</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.page.block.breadcrumb</argument>
+        <argument>sonata.page.block.breadcrumb</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.page.block.shared_block</argument>
+        <argument>sonata.page.block.shared_block</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.email.share_button</argument>
+        <argument>sonata.seo.block.email.share_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.facebook.like_box</argument>
+        <argument>sonata.seo.block.facebook.like_box</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.facebook.like_button</argument>
+        <argument>sonata.seo.block.facebook.like_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.facebook.send_button</argument>
+        <argument>sonata.seo.block.facebook.send_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.facebook.share_button</argument>
+        <argument>sonata.seo.block.facebook.share_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.twitter.share_button</argument>
+        <argument>sonata.seo.block.twitter.share_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.twitter.follow_button</argument>
+        <argument>sonata.seo.block.twitter.follow_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.twitter.hashtag_button</argument>
+        <argument>sonata.seo.block.twitter.hashtag_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.twitter.mention_button</argument>
+        <argument>sonata.seo.block.twitter.mention_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.twitter.embed</argument>
+        <argument>sonata.seo.block.twitter.embed</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.pinterest.pin_button</argument>
+        <argument>sonata.seo.block.pinterest.pin_button</argument>
+        <argument type="collection"/>
+      </call>
+      <call method="add">
+        <argument>sonata.seo.block.breadcrumb.homepage</argument>
+        <argument>sonata.seo.block.breadcrumb.homepage</argument>
+        <argument type="collection"/>
+      </call>
     </service>
     <service id="sonata.block.context_manager.default" class="Sonata\BlockBundle\Block\BlockContextManager">
       <argument type="service" id="sonata.block.loader.chain"/>
@@ -5280,6 +5949,8 @@
           <argument key="sonata.user.block.menu">sonata.cache.noop</argument>
           <argument key="sonata.user.block.account">sonata.cache.noop</argument>
           <argument key="sonata.admin.block.admin_list">sonata.cache.noop</argument>
+          <argument key="sonata.block.service.text">sonata.cache.noop</argument>
+          <argument key="sonata.block.service.rss">sonata.cache.noop</argument>
         </argument>
       </argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
@@ -5298,12 +5969,14 @@
           <argument key="sonata.user.block.menu">sonata.cache.noop</argument>
           <argument key="sonata.user.block.account">sonata.cache.noop</argument>
           <argument key="sonata.admin.block.admin_list">sonata.cache.noop</argument>
+          <argument key="sonata.block.service.text">sonata.cache.noop</argument>
+          <argument key="sonata.block.service.rss">sonata.cache.noop</argument>
         </argument>
       </argument>
       <argument type="service" id="sonata.block.renderer.default"/>
       <argument type="service" id="sonata.block.context_manager.default"/>
       <argument type="service" id="debug.event_dispatcher"/>
-      <argument>null</argument>
+      <argument type="service" id="sonata.cache.manager" on-invalid="ignore"/>
       <argument type="service" id="sonata.block.cache.handler.default" on-invalid="ignore"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
     </service>
@@ -5318,12 +5991,14 @@
         <argument>sonata.user.block.menu</argument>
         <argument>sonata.user.block.account</argument>
         <argument>sonata.admin.block.admin_list</argument>
+        <argument>sonata.block.service.text</argument>
+        <argument>sonata.block.service.rss</argument>
       </argument>
     </service>
     <service id="sonata.block.twig.global" class="Sonata\BlockBundle\Twig\GlobalVariables">
       <argument type="collection">
-        <argument key="block_base">SonataBlockBundle:Block:block_base.html.twig</argument>
-        <argument key="block_container">SonataBlockBundle:Block:block_container.html.twig</argument>
+        <argument key="block_base">SonataPageBundle:Block:block_base.html.twig</argument>
+        <argument key="block_container">SonataPageBundle:Block:block_container.html.twig</argument>
       </argument>
     </service>
     <service id="sonata.block.cache.handler.default" class="Sonata\BlockBundle\Cache\HttpCacheHandler">
@@ -5376,7 +6051,7 @@
         <argument type="service">
           <service class="Knp\Menu\Integration\Symfony\RoutingExtension" public="false">
             <tag name="knp_menu.factory_extension"/>
-            <argument type="service" id="router"/>
+            <argument type="service" id="cmf_routing.router"/>
           </service>
         </argument>
         <argument>0</argument>
@@ -5516,6 +6191,9 @@
     <service id="sonata.admin.orm.filter.type.model" class="Sonata\DoctrineORMAdminBundle\Filter\ModelFilter" scope="prototype">
       <tag name="sonata.admin.filter.type" alias="doctrine_orm_model"/>
     </service>
+    <service id="sonata.admin.orm.filter.type.model_autocomplete" class="Sonata\DoctrineORMAdminBundle\Filter\ModelAutocompleteFilter" scope="prototype">
+      <tag name="sonata.admin.filter.type" alias="doctrine_orm_model_autocomplete"/>
+    </service>
     <service id="sonata.admin.orm.filter.type.string" class="Sonata\DoctrineORMAdminBundle\Filter\StringFilter" scope="prototype">
       <tag name="sonata.admin.filter.type" alias="doctrine_orm_string"/>
     </service>
@@ -5544,7 +6222,7 @@
     <service id="sonata.admin.twig.extension" class="Sonata\AdminBundle\Twig\Extension\SonataAdminExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="sonata.admin.pool"/>
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
       <argument type="service" id="knp_menu.helper"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
     </service>
@@ -5639,6 +6317,12 @@
           <argument>sonata.admin.commande</argument>
           <argument>sonata.user.admin.user</argument>
           <argument>sonata.user.admin.group</argument>
+          <argument>sonata.page.admin.page</argument>
+          <argument>sonata.page.admin.block</argument>
+          <argument>sonata.page.admin.shared_block</argument>
+          <argument>sonata.page.admin.snapshot</argument>
+          <argument>sonata.page.admin.site</argument>
+          <argument>sonata.notification.admin.message</argument>
         </argument>
       </call>
       <call method="setAdminGroups">
@@ -5683,6 +6367,46 @@
               </argument>
             </argument>
           </argument>
+          <argument key="sonata_page" type="collection">
+            <argument key="label">sonata_page</argument>
+            <argument key="label_catalogue">SonataPageBundle</argument>
+            <argument key="icon">&lt;i class="fa fa-folder"&gt;&lt;/i&gt;</argument>
+            <argument key="roles" type="collection"/>
+            <argument key="items" type="collection">
+              <argument type="collection">
+                <argument key="admin">sonata.page.admin.page</argument>
+                <argument key="label"></argument>
+                <argument key="route"></argument>
+                <argument key="route_params" type="collection"/>
+              </argument>
+              <argument type="collection">
+                <argument key="admin">sonata.page.admin.shared_block</argument>
+                <argument key="label"></argument>
+                <argument key="route"></argument>
+                <argument key="route_params" type="collection"/>
+              </argument>
+              <argument type="collection">
+                <argument key="admin">sonata.page.admin.site</argument>
+                <argument key="label"></argument>
+                <argument key="route"></argument>
+                <argument key="route_params" type="collection"/>
+              </argument>
+            </argument>
+          </argument>
+          <argument key="sonata_notification" type="collection">
+            <argument key="label">sonata_notification</argument>
+            <argument key="label_catalogue">SonataNotificationBundle</argument>
+            <argument key="icon">&lt;i class="fa fa-folder"&gt;&lt;/i&gt;</argument>
+            <argument key="roles" type="collection"/>
+            <argument key="items" type="collection">
+              <argument type="collection">
+                <argument key="admin">sonata.notification.admin.message</argument>
+                <argument key="label"></argument>
+                <argument key="route"></argument>
+                <argument key="route_params" type="collection"/>
+              </argument>
+            </argument>
+          </argument>
         </argument>
       </call>
       <call method="setAdminClasses">
@@ -5699,6 +6423,22 @@
           <argument key="Application\Sonata\UserBundle\Entity\Group" type="collection">
             <argument>sonata.user.admin.group</argument>
           </argument>
+          <argument key="Application\Sonata\PageBundle\Entity\Page" type="collection">
+            <argument>sonata.page.admin.page</argument>
+          </argument>
+          <argument key="Application\Sonata\PageBundle\Entity\Block" type="collection">
+            <argument>sonata.page.admin.block</argument>
+            <argument>sonata.page.admin.shared_block</argument>
+          </argument>
+          <argument key="Application\Sonata\PageBundle\Entity\Snapshot" type="collection">
+            <argument>sonata.page.admin.snapshot</argument>
+          </argument>
+          <argument key="Application\Sonata\PageBundle\Entity\Site" type="collection">
+            <argument>sonata.page.admin.site</argument>
+          </argument>
+          <argument key="Application\Sonata\NotificationBundle\Entity\Message" type="collection">
+            <argument>sonata.notification.admin.message</argument>
+          </argument>
         </argument>
       </call>
     </service>
@@ -5710,6 +6450,12 @@
         <argument>sonata.admin.commande</argument>
         <argument>sonata.user.admin.user</argument>
         <argument>sonata.user.admin.group</argument>
+        <argument>sonata.page.admin.page</argument>
+        <argument>sonata.page.admin.block</argument>
+        <argument>sonata.page.admin.shared_block</argument>
+        <argument>sonata.page.admin.snapshot</argument>
+        <argument>sonata.page.admin.site</argument>
+        <argument>sonata.notification.admin.message</argument>
       </argument>
       <argument type="service" id="service_container"/>
     </service>
@@ -5723,6 +6469,7 @@
         <argument key="doctrine_orm_callback">sonata.admin.orm.filter.type.callback</argument>
         <argument key="doctrine_orm_choice">sonata.admin.orm.filter.type.choice</argument>
         <argument key="doctrine_orm_model">sonata.admin.orm.filter.type.model</argument>
+        <argument key="doctrine_orm_model_autocomplete">sonata.admin.orm.filter.type.model_autocomplete</argument>
         <argument key="doctrine_orm_string">sonata.admin.orm.filter.type.string</argument>
         <argument key="doctrine_orm_number">sonata.admin.orm.filter.type.number</argument>
         <argument key="doctrine_orm_date">sonata.admin.orm.filter.type.date</argument>
@@ -5883,7 +6630,7 @@
       <argument type="service" id="sonata.admin.audit.manager"/>
     </service>
     <service id="sonata.admin.route.default_generator" class="Sonata\AdminBundle\Route\DefaultRouteGenerator">
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
       <argument type="service" id="sonata.admin.route.cache"/>
     </service>
     <service id="sonata.admin.route.cache" class="Sonata\AdminBundle\Route\RoutesCache">
@@ -5956,6 +6703,224 @@
               </argument>
             </argument>
           </argument>
+        </argument>
+      </call>
+      <call method="addAssociation">
+        <argument>Application\Sonata\PageBundle\Entity\Page</argument>
+        <argument>mapOneToMany</argument>
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fieldName">children</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">parent</argument>
+            <argument key="orphanRemoval">false</argument>
+            <argument key="orderBy" type="collection">
+              <argument key="position">ASC</argument>
+            </argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">blocks</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Block</argument>
+            <argument key="cascade" type="collection">
+              <argument>remove</argument>
+              <argument>persist</argument>
+              <argument>refresh</argument>
+              <argument>merge</argument>
+              <argument>detach</argument>
+            </argument>
+            <argument key="mappedBy">page</argument>
+            <argument key="orphanRemoval">false</argument>
+            <argument key="orderBy" type="collection">
+              <argument key="position">ASC</argument>
+            </argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">sources</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection"/>
+            <argument key="mappedBy">target</argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+        </argument>
+      </call>
+      <call method="addAssociation">
+        <argument>Application\Sonata\PageBundle\Entity\Page</argument>
+        <argument>mapManyToOne</argument>
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fieldName">site</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Site</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">null</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">site_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">parent</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">children</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">parent_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">target</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">sources</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">target_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+        </argument>
+      </call>
+      <call method="addAssociation">
+        <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+        <argument>mapOneToMany</argument>
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fieldName">children</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Block</argument>
+            <argument key="cascade" type="collection">
+              <argument>remove</argument>
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">parent</argument>
+            <argument key="orphanRemoval">true</argument>
+            <argument key="orderBy" type="collection">
+              <argument key="position">ASC</argument>
+            </argument>
+          </argument>
+        </argument>
+      </call>
+      <call method="addAssociation">
+        <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+        <argument>mapManyToOne</argument>
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fieldName">parent</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Block</argument>
+            <argument key="cascade" type="collection"/>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">children</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">parent_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">page</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">blocks</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">page_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+        </argument>
+      </call>
+      <call method="addAssociation">
+        <argument>Application\Sonata\PageBundle\Entity\Snapshot</argument>
+        <argument>mapManyToOne</argument>
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fieldName">site</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Site</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">null</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">site_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+          <argument type="collection">
+            <argument key="fieldName">page</argument>
+            <argument key="targetEntity">Application\Sonata\PageBundle\Entity\Page</argument>
+            <argument key="cascade" type="collection">
+              <argument>persist</argument>
+            </argument>
+            <argument key="mappedBy">null</argument>
+            <argument key="inversedBy">null</argument>
+            <argument key="joinColumns" type="collection">
+              <argument type="collection">
+                <argument key="name">page_id</argument>
+                <argument key="referencedColumnName">id</argument>
+                <argument key="onDelete">CASCADE</argument>
+              </argument>
+            </argument>
+            <argument key="orphanRemoval">false</argument>
+          </argument>
+        </argument>
+      </call>
+      <call method="addIndex">
+        <argument>Application\Sonata\PageBundle\Entity\Snapshot</argument>
+        <argument>idx_snapshot_dates_enabled</argument>
+        <argument type="collection">
+          <argument>publication_date_start</argument>
+          <argument>publication_date_end</argument>
+          <argument>enabled</argument>
+        </argument>
+      </call>
+      <call method="addIndex">
+        <argument>Application\Sonata\NotificationBundle\Entity\Message</argument>
+        <argument>idx_state</argument>
+        <argument type="collection">
+          <argument>state</argument>
+        </argument>
+      </call>
+      <call method="addIndex">
+        <argument>Application\Sonata\NotificationBundle\Entity\Message</argument>
+        <argument>idx_created_at</argument>
+        <argument type="collection">
+          <argument>created_at</argument>
         </argument>
       </call>
     </service>
@@ -6065,6 +7030,12 @@
       <argument type="service" id="security.context"/>
       <argument type="service" id="sonata.admin.pool"/>
       <argument type="collection">
+        <argument key="ROLE_GESTIONNAIRE" type="collection">
+          <argument>ROLE_USER</argument>
+        </argument>
+        <argument key="ROLE_AGENT" type="collection">
+          <argument>ROLE_USER</argument>
+        </argument>
         <argument key="ROLE_ADMIN" type="collection">
           <argument>ROLE_USER</argument>
           <argument>ROLE_SONATA_ADMIN</argument>
@@ -6075,6 +7046,7 @@
         </argument>
         <argument key="SONATA" type="collection">
           <argument>ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT</argument>
+          <argument>ROLE_SONATA_PAGE_ADMIN_BLOCK_EDIT</argument>
         </argument>
       </argument>
     </service>
@@ -6393,6 +7365,1606 @@
       <tag name="jms_serializer.subscribing_handler"/>
       <argument type="service" id="sonata.user.manager.user"/>
     </service>
+    <service id="sonata.user.block.breadcrumb_index" class="Sonata\UserBundle\Block\Breadcrumb\UserIndexBreadcrumbBlockService">
+      <tag name="sonata.block"/>
+      <tag name="sonata.breadcrumb"/>
+      <argument>user_index</argument>
+      <argument>sonata.user.block.breadcrumb_index</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="knp_menu.menu_provider"/>
+      <argument type="service" id="knp_menu.factory"/>
+    </service>
+    <service id="sonata.user.block.breadcrumb_profile" class="Sonata\UserBundle\Block\Breadcrumb\UserProfileBreadcrumbBlockService">
+      <tag name="sonata.block"/>
+      <tag name="sonata.breadcrumb"/>
+      <argument>user_profile</argument>
+      <argument>sonata.user.block.breadcrumb_profile</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="knp_menu.menu_provider"/>
+      <argument type="service" id="knp_menu.factory"/>
+    </service>
+    <service id="sonata.page.site.selector.host" class="Sonata\PageBundle\Site\HostSiteSelector">
+      <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest" priority="47"/>
+      <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequestRedirect" priority="0"/>
+      <argument type="service" id="sonata.page.manager.site"/>
+      <argument type="service" id="sonata.page.decorator_strategy"/>
+      <argument type="service" id="sonata.seo.page.default"/>
+    </service>
+    <service id="sonata.page.response_listener" class="Sonata\PageBundle\Listener\ResponseListener" scope="request">
+      <tag name="kernel.event_listener" event="kernel.response" method="onCoreResponse" priority="-1"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.page.page_service_manager"/>
+      <argument type="service" id="sonata.page.decorator_strategy"/>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.page.request_listener" class="Sonata\PageBundle\Listener\RequestListener" scope="request">
+      <tag name="kernel.event_listener" event="kernel.request" method="onCoreRequest" priority="30"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.page.site.selector.host"/>
+      <argument type="service" id="sonata.page.decorator_strategy"/>
+    </service>
+    <service id="sonata.page.cms_manager_selector" class="Sonata\PageBundle\CmsManager\CmsManagerSelector">
+      <tag name="kernel.event_listener" event="security.interactive_login" method="onSecurityInteractiveLogin"/>
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="sonata.page.cms.page" class="Sonata\PageBundle\CmsManager\CmsPageManager">
+      <tag name="sonata.page.manager" type="page"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+      <argument type="service" id="sonata.page.block_interactor"/>
+    </service>
+    <service id="sonata.page.cms.snapshot" class="Sonata\PageBundle\CmsManager\CmsSnapshotManager">
+      <tag name="sonata.page.manager" type="snapshot"/>
+      <argument type="service" id="sonata.page.manager.snapshot"/>
+      <argument type="service" id="sonata.page.transformer"/>
+    </service>
+    <service id="sonata.page.decorator_strategy" class="Sonata\PageBundle\CmsManager\DecoratorStrategy">
+      <argument type="collection">
+        <argument>sonata_page_cache_esi</argument>
+        <argument>sonata_page_cache_ssi</argument>
+        <argument>sonata_page_js_sync_cache</argument>
+        <argument>sonata_page_js_async_cache</argument>
+        <argument>sonata_cache_esi</argument>
+        <argument>sonata_cache_ssi</argument>
+        <argument>sonata_cache_js_async</argument>
+        <argument>sonata_cache_js_sync</argument>
+        <argument>sonata_cache_apc</argument>
+      </argument>
+      <argument type="collection">
+        <argument>^(.*)admin(.*)</argument>
+        <argument>^_(.*)</argument>
+      </argument>
+      <argument type="collection">
+        <argument>^/admin\/</argument>
+      </argument>
+    </service>
+    <service id="sonata.page.router" class="Sonata\PageBundle\Route\CmsPageRouter">
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.page.site.selector.host"/>
+      <argument type="service" id="router.default"/>
+    </service>
+    <service id="sonata.page.route.page.generator" class="Sonata\PageBundle\Route\RoutePageGenerator">
+      <argument type="service" id="router.default"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+      <argument type="service" id="sonata.page.decorator_strategy"/>
+      <argument type="service" id="sonata.page.kernel.exception_listener"/>
+    </service>
+    <service id="sonata.page.template_manager" class="Sonata\PageBundle\Page\TemplateManager">
+      <argument type="service" id="templating"/>
+      <argument type="collection">
+        <argument key="error_codes" type="collection"/>
+      </argument>
+      <call method="setAll">
+        <argument type="collection">
+          <argument key="default" type="service">
+            <service class="Sonata\PageBundle\Model\Template" public="false">
+              <argument>default</argument>
+              <argument>SonataPageBundle::layout.html.twig</argument>
+              <argument type="collection"/>
+            </service>
+          </argument>
+        </argument>
+      </call>
+      <call method="setDefaultTemplateCode">
+        <argument>default</argument>
+      </call>
+    </service>
+    <service id="sonata.page.page_service_manager" class="Sonata\PageBundle\Page\PageServiceManager">
+      <argument type="service" id="cmf_routing.router"/>
+      <call method="setDefault">
+        <argument type="service" id="sonata.page.service.default"/>
+      </call>
+      <call method="add">
+        <argument>sonata.page.service.default</argument>
+        <argument type="service" id="sonata.page.service.default"/>
+      </call>
+    </service>
+    <service id="sonata.page.service.default" class="Sonata\PageBundle\Page\Service\DefaultPageService">
+      <tag name="sonata.page"/>
+      <argument>Default</argument>
+      <argument type="service" id="sonata.page.template_manager"/>
+      <argument type="service" id="sonata.seo.page.default"/>
+    </service>
+    <service id="sonata.page.serializer.handler.page" class="Sonata\PageBundle\Serializer\PageSerializerHandler">
+      <tag name="jms_serializer.subscribing_handler"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.page.serializer.handler.block" class="Sonata\PageBundle\Serializer\BlockSerializerHandler">
+      <tag name="jms_serializer.subscribing_handler"/>
+      <argument type="service" id="sonata.page.manager.block"/>
+    </service>
+    <service id="sonata.page.serializer.handler.site" class="Sonata\PageBundle\Serializer\SiteSerializerHandler">
+      <tag name="jms_serializer.subscribing_handler"/>
+      <argument type="service" id="sonata.page.manager.site"/>
+    </service>
+    <service id="sonata.page.serializer.handler.snapshot" class="Sonata\PageBundle\Serializer\SnapshotSerializerHandler">
+      <tag name="jms_serializer.subscribing_handler"/>
+      <argument type="service" id="sonata.page.manager.snapshot"/>
+    </service>
+    <service id="sonata.page.admin.page" class="Sonata\PageBundle\Admin\PageAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" group="sonata_page" label_catalogue="%sonata.page.admin.page.translation_domain%" label="page" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.page.admin.page</argument>
+      <argument>Application\Sonata\PageBundle\Entity\Page</argument>
+      <argument>SonataPageBundle:PageAdmin</argument>
+      <call method="addChild">
+        <argument type="service">
+          <service class="Sonata\PageBundle\Admin\BlockAdmin" scope="prototype">
+            <tag name="sonata.admin" manager_type="orm" show_in_dashboard="" group="sonata_page" label_catalogue="%sonata.page.admin.page.translation_domain%" label="block" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+            <argument>sonata.page.admin.block</argument>
+            <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+            <argument>SonataPageBundle:BlockAdmin</argument>
+            <call method="setCacheManager">
+              <argument type="service" id="sonata.cache.manager"/>
+            </call>
+            <call method="setBlockManager">
+              <argument type="service" id="sonata.block.manager"/>
+            </call>
+            <call method="setTranslationDomain">
+              <argument>SonataPageBundle</argument>
+            </call>
+            <call method="setContainerBlockTypes">
+              <argument type="collection">
+                <argument>sonata.block.service.container</argument>
+                <argument>sonata.page.block.container</argument>
+                <argument>cmf.block.container</argument>
+                <argument>cmf.block.slideshow</argument>
+              </argument>
+            </call>
+            <call method="setFormTheme">
+              <argument type="collection">
+                <argument>SonataPageBundle:Form:form_admin_fields.html.twig</argument>
+                <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setFilterTheme">
+              <argument type="collection">
+                <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setLabelTranslatorStrategy">
+              <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+            </call>
+            <call method="setManagerType">
+              <argument>orm</argument>
+            </call>
+            <call method="setModelManager">
+              <argument type="service" id="sonata.admin.manager.orm"/>
+            </call>
+            <call method="setFormContractor">
+              <argument type="service" id="sonata.admin.builder.orm_form"/>
+            </call>
+            <call method="setShowBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_show"/>
+            </call>
+            <call method="setListBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_list"/>
+            </call>
+            <call method="setDatagridBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+            </call>
+            <call method="setTranslator">
+              <argument type="service" id="translator.default"/>
+            </call>
+            <call method="setConfigurationPool">
+              <argument type="service" id="sonata.admin.pool"/>
+            </call>
+            <call method="setRouteGenerator">
+              <argument type="service" id="sonata.admin.route.default_generator"/>
+            </call>
+            <call method="setValidator">
+              <argument type="service" id="validator"/>
+            </call>
+            <call method="setSecurityHandler">
+              <argument type="service" id="sonata.admin.security.handler"/>
+            </call>
+            <call method="setMenuFactory">
+              <argument type="service" id="knp_menu.factory"/>
+            </call>
+            <call method="setRouteBuilder">
+              <argument type="service" id="sonata.admin.route.path_info"/>
+            </call>
+            <call method="setPagerType">
+              <argument>default</argument>
+            </call>
+            <call method="setLabel">
+              <argument>block</argument>
+            </call>
+            <call method="setPersistFilters">
+              <argument>false</argument>
+            </call>
+            <call method="setTemplates">
+              <argument type="collection">
+                <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+                <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+                <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+                <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+                <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+                <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+                <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+                <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+                <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+                <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+                <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+                <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+                <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+                <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+                <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+                <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+                <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+                <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+                <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+                <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+                <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+                <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+                <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+                <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+                <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+                <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+                <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+                <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+                <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+                <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+                <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+                <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setSecurityInformation">
+              <argument type="collection"/>
+            </call>
+            <call method="initialize"/>
+            <call method="addExtension">
+              <argument type="service" id="sonata.admin.event.extension"/>
+            </call>
+          </service>
+        </argument>
+      </call>
+      <call method="addChild">
+        <argument type="service">
+          <service class="Sonata\PageBundle\Admin\SnapshotAdmin" scope="prototype">
+            <tag name="sonata.admin" manager_type="orm" group="sonata_page" label_catalogue="%sonata.page.admin.snapshot.translation_domain%" label="snapshot" show_in_dashboard="" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+            <argument>sonata.page.admin.snapshot</argument>
+            <argument>Application\Sonata\PageBundle\Entity\Snapshot</argument>
+            <argument>SonataPageBundle:SnapshotAdmin</argument>
+            <call method="setCacheManager">
+              <argument type="service" id="sonata.cache.manager"/>
+            </call>
+            <call method="setTranslationDomain">
+              <argument>SonataPageBundle</argument>
+            </call>
+            <call method="setFormTheme">
+              <argument type="collection">
+                <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setFilterTheme">
+              <argument type="collection">
+                <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setLabelTranslatorStrategy">
+              <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+            </call>
+            <call method="setManagerType">
+              <argument>orm</argument>
+            </call>
+            <call method="setModelManager">
+              <argument type="service" id="sonata.admin.manager.orm"/>
+            </call>
+            <call method="setFormContractor">
+              <argument type="service" id="sonata.admin.builder.orm_form"/>
+            </call>
+            <call method="setShowBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_show"/>
+            </call>
+            <call method="setListBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_list"/>
+            </call>
+            <call method="setDatagridBuilder">
+              <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+            </call>
+            <call method="setTranslator">
+              <argument type="service" id="translator.default"/>
+            </call>
+            <call method="setConfigurationPool">
+              <argument type="service" id="sonata.admin.pool"/>
+            </call>
+            <call method="setRouteGenerator">
+              <argument type="service" id="sonata.admin.route.default_generator"/>
+            </call>
+            <call method="setValidator">
+              <argument type="service" id="validator"/>
+            </call>
+            <call method="setSecurityHandler">
+              <argument type="service" id="sonata.admin.security.handler"/>
+            </call>
+            <call method="setMenuFactory">
+              <argument type="service" id="knp_menu.factory"/>
+            </call>
+            <call method="setRouteBuilder">
+              <argument type="service" id="sonata.admin.route.path_info"/>
+            </call>
+            <call method="setPagerType">
+              <argument>default</argument>
+            </call>
+            <call method="setLabel">
+              <argument>snapshot</argument>
+            </call>
+            <call method="setPersistFilters">
+              <argument>false</argument>
+            </call>
+            <call method="setTemplates">
+              <argument type="collection">
+                <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+                <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+                <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+                <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+                <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+                <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+                <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+                <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+                <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+                <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+                <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+                <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+                <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+                <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+                <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+                <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+                <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+                <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+                <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+                <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+                <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+                <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+                <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+                <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+                <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+                <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+                <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+                <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+                <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+                <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+                <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+                <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+              </argument>
+            </call>
+            <call method="setSecurityInformation">
+              <argument type="collection"/>
+            </call>
+            <call method="initialize"/>
+            <call method="addExtension">
+              <argument type="service" id="sonata.admin.event.extension"/>
+            </call>
+          </service>
+        </argument>
+      </call>
+      <call method="setPageManager">
+        <argument type="service" id="sonata.page.manager.page"/>
+      </call>
+      <call method="setCacheManager">
+        <argument type="service" id="sonata.cache.manager"/>
+      </call>
+      <call method="setSiteManager">
+        <argument type="service" id="sonata.page.manager.site"/>
+      </call>
+      <call method="setTranslationDomain">
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>page</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataPageBundle:PageAdmin:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
+    <service id="sonata.page.admin.block" class="Sonata\PageBundle\Admin\BlockAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" show_in_dashboard="" group="sonata_page" label_catalogue="%sonata.page.admin.page.translation_domain%" label="block" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.page.admin.block</argument>
+      <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+      <argument>SonataPageBundle:BlockAdmin</argument>
+      <call method="setCacheManager">
+        <argument type="service" id="sonata.cache.manager"/>
+      </call>
+      <call method="setBlockManager">
+        <argument type="service" id="sonata.block.manager"/>
+      </call>
+      <call method="setTranslationDomain">
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="setContainerBlockTypes">
+        <argument type="collection">
+          <argument>sonata.block.service.container</argument>
+          <argument>sonata.page.block.container</argument>
+          <argument>cmf.block.container</argument>
+          <argument>cmf.block.slideshow</argument>
+        </argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataPageBundle:Form:form_admin_fields.html.twig</argument>
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>block</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
+    <service id="sonata.page.admin.shared_block" class="Sonata\PageBundle\Admin\SharedBlockAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" show_in_dashboard="1" group="sonata_page" label_catalogue="%sonata.page.admin.page.translation_domain%" label="shared_block" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.page.admin.shared_block</argument>
+      <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+      <argument>SonataPageBundle:BlockAdmin</argument>
+      <call method="setCacheManager">
+        <argument type="service" id="sonata.cache.manager"/>
+      </call>
+      <call method="setBlockManager">
+        <argument type="service" id="sonata.block.manager"/>
+      </call>
+      <call method="setTranslationDomain">
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="setContainerBlockTypes">
+        <argument type="collection">
+          <argument>sonata.block.service.container</argument>
+          <argument>sonata.page.block.container</argument>
+          <argument>cmf.block.container</argument>
+          <argument>cmf.block.slideshow</argument>
+        </argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataPageBundle:Form:form_admin_fields.html.twig</argument>
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>shared_block</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
+    <service id="sonata.page.admin.snapshot" class="Sonata\PageBundle\Admin\SnapshotAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" group="sonata_page" label_catalogue="%sonata.page.admin.snapshot.translation_domain%" label="snapshot" show_in_dashboard="" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.page.admin.snapshot</argument>
+      <argument>Application\Sonata\PageBundle\Entity\Snapshot</argument>
+      <argument>SonataPageBundle:SnapshotAdmin</argument>
+      <call method="setCacheManager">
+        <argument type="service" id="sonata.cache.manager"/>
+      </call>
+      <call method="setTranslationDomain">
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>snapshot</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
+    <service id="sonata.page.admin.site" class="Sonata\PageBundle\Admin\SiteAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" group="sonata_page" label_catalogue="%sonata.page.admin.site.translation_domain%" label="site" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.page.admin.site</argument>
+      <argument>Application\Sonata\PageBundle\Entity\Site</argument>
+      <argument>SonataPageBundle:SiteAdmin</argument>
+      <argument type="service" id="sonata.page.route.page.generator"/>
+      <call method="setTranslationDomain">
+        <argument>SonataPageBundle</argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>site</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
+    <service id="sonata.page.block.container" class="Sonata\PageBundle\Block\ContainerBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.page.block.container</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.page.block.children_pages" class="Sonata\PageBundle\Block\ChildrenPagesBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.page.block.children_pages</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="sonata.page.site.selector.host"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+    </service>
+    <service id="sonata.page.block.ajax" class="Sonata\PageBundle\Controller\AjaxController">
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.block.renderer.default"/>
+      <argument type="service" id="sonata.block.context_manager.default"/>
+    </service>
+    <service id="sonata.page.block.context_manager" class="Sonata\PageBundle\Block\BlockContextManager">
+      <argument type="service" id="sonata.block.loader.service"/>
+      <argument type="service" id="sonata.block.manager"/>
+    </service>
+    <service id="sonata.page.block.breadcrumb" class="Sonata\PageBundle\Block\BreadcrumbBlockService">
+      <tag name="sonata.block"/>
+      <tag name="sonata.breadcrumb"/>
+      <argument>page</argument>
+      <argument>sonata.page.block.breadcrumb</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="knp_menu.menu_provider"/>
+      <argument type="service" id="knp_menu.factory"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+    </service>
+    <service id="sonata.page.block.shared_block" class="Sonata\PageBundle\Block\SharedBlockBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.page.block.shared_block</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="sonata.page.manager.block"/>
+    </service>
+    <service id="sonata.page.manager.page" class="Sonata\PageBundle\Entity\PageManager">
+      <argument>Application\Sonata\PageBundle\Entity\Page</argument>
+      <argument type="service" id="doctrine"/>
+      <argument type="collection">
+        <argument key="templateCode">default</argument>
+        <argument key="enabled">true</argument>
+        <argument key="routeName">null</argument>
+        <argument key="name">null</argument>
+        <argument key="slug">null</argument>
+        <argument key="url">null</argument>
+        <argument key="requestMethod">null</argument>
+        <argument key="decorate">true</argument>
+      </argument>
+      <argument type="collection">
+        <argument key="homepage" type="collection">
+          <argument key="templateCode">default</argument>
+          <argument key="enabled">true</argument>
+          <argument key="routeName">null</argument>
+          <argument key="name">null</argument>
+          <argument key="slug">null</argument>
+          <argument key="url">null</argument>
+          <argument key="requestMethod">null</argument>
+          <argument key="decorate">false</argument>
+        </argument>
+      </argument>
+    </service>
+    <service id="sonata.page.manager.snapshot" class="Sonata\PageBundle\Entity\SnapshotManager">
+      <argument>Application\Sonata\PageBundle\Entity\Snapshot</argument>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.page.manager.block" class="Sonata\PageBundle\Entity\BlockManager">
+      <argument>Application\Sonata\PageBundle\Entity\Block</argument>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.page.manager.site" class="Sonata\PageBundle\Entity\SiteManager">
+      <argument>Application\Sonata\PageBundle\Entity\Site</argument>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.page.block_interactor" class="Sonata\PageBundle\Entity\BlockInteractor">
+      <argument type="service" id="doctrine"/>
+      <argument type="service" id="sonata.page.manager.block"/>
+    </service>
+    <service id="sonata.page.transformer" class="Sonata\PageBundle\Entity\Transformer">
+      <argument type="service" id="sonata.page.manager.snapshot"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+      <argument type="service" id="sonata.page.manager.block"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.page.form.type.page_selector" class="Sonata\PageBundle\Form\Type\PageSelectorType">
+      <tag name="form.type" alias="sonata_page_selector"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.page.form.create_snapshot" class="Sonata\PageBundle\Form\Type\CreateSnapshotType">
+      <tag name="form.type" alias="sonata_page_create_snapshot"/>
+    </service>
+    <service id="sonata.page.form.template_choice" class="Sonata\PageBundle\Form\Type\TemplateChoiceType">
+      <tag name="form.type" alias="sonata_page_template"/>
+      <argument type="service" id="sonata.page.template_manager"/>
+    </service>
+    <service id="sonata.page.form.page_type_choice" class="Sonata\PageBundle\Form\Type\PageTypeChoiceType">
+      <tag name="form.type" alias="sonata_page_type_choice"/>
+      <argument type="service" id="sonata.page.page_service_manager"/>
+    </service>
+    <service id="sonata.page.cache.esi" class="Sonata\PageBundle\Cache\BlockEsiCache">
+      <tag name="sonata.cache"/>
+      <argument>8a7f9d1fe1f60c94233fcbb0cebd2d15b3f66fbd78b4f160213f9f5c3380962c</argument>
+      <argument type="collection">
+        <argument>varnishadm -T 127.0.0.1:2000 {{ COMMAND }} "{{ EXPRESSION }}"</argument>
+      </argument>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument>purge</argument>
+      <argument type="service" id="sonata.block.renderer.default"/>
+      <argument type="service" id="sonata.page.block.context_manager"/>
+      <argument type="collection">
+        <argument key="page" type="service" id="sonata.page.cms.page"/>
+        <argument key="snapshot" type="service" id="sonata.page.cms.snapshot"/>
+      </argument>
+      <argument type="service" id="sonata.cache.recorder"/>
+    </service>
+    <service id="sonata.page.cache.ssi" class="Sonata\PageBundle\Cache\BlockSsiCache">
+      <tag name="sonata.cache"/>
+      <argument>an unique key</argument>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument type="service" id="sonata.block.renderer.default"/>
+      <argument type="service" id="sonata.page.block.context_manager"/>
+      <argument type="collection">
+        <argument key="page" type="service" id="sonata.page.cms.page"/>
+        <argument key="snapshot" type="service" id="sonata.page.cms.snapshot"/>
+      </argument>
+    </service>
+    <service id="sonata.page.cache.js_sync" class="Sonata\PageBundle\Cache\BlockJsCache">
+      <tag name="sonata.cache"/>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.block.renderer.default"/>
+      <argument type="service" id="sonata.page.block.context_manager"/>
+      <argument>true</argument>
+    </service>
+    <service id="sonata.page.cache.js_async" class="Sonata\PageBundle\Cache\BlockJsCache">
+      <tag name="sonata.cache"/>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument type="service" id="sonata.block.renderer.default"/>
+      <argument type="service" id="sonata.page.block.context_manager"/>
+      <argument>false</argument>
+    </service>
+    <service id="sonata.page.twig.global" class="Sonata\PageBundle\Twig\GlobalVariables">
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="sonata.page.kernel.exception_listener" class="Sonata\PageBundle\Listener\ExceptionListener">
+      <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" priority="-127"/>
+      <tag name="monolog.logger" channel="request"/>
+      <argument type="service" id="sonata.page.site.selector.host"/>
+      <argument type="service" id="sonata.page.cms_manager_selector"/>
+      <argument>true</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="sonata.page.page_service_manager"/>
+      <argument type="service" id="sonata.page.decorator_strategy"/>
+      <argument type="collection"/>
+      <argument type="service" id="monolog.logger.request" on-invalid="null"/>
+    </service>
+    <service id="sonata.page.notification.create_snapshots" class="Sonata\PageBundle\Consumer\CreateSnapshotsConsumer">
+      <tag name="sonata.notification.consumer" type="sonata.page.create_snapshots"/>
+      <argument type="service" id="sonata.notification.backend.runtime"/>
+      <argument type="service" id="sonata.notification.backend.runtime"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.page.notification.create_snapshot" class="Sonata\PageBundle\Consumer\CreateSnapshotConsumer">
+      <tag name="sonata.notification.consumer" type="sonata.page.create_snapshot"/>
+      <argument type="service" id="sonata.page.manager.snapshot"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+      <argument type="service" id="sonata.page.transformer"/>
+    </service>
+    <service id="sonata.page.notification.cleanup_snapshots" class="Sonata\PageBundle\Consumer\CleanupSnapshotsConsumer">
+      <tag name="sonata.notification.consumer" type="sonata.page.cleanup_snapshots"/>
+      <argument type="service" id="sonata.notification.backend.runtime"/>
+      <argument type="service" id="sonata.notification.backend.runtime"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.page.notification.cleanup_snapshot" class="Sonata\PageBundle\Consumer\CleanupSnapshotConsumer">
+      <tag name="sonata.notification.consumer" type="sonata.page.cleanup_snapshot"/>
+      <argument type="service" id="sonata.page.manager.snapshot"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.page.validator.unique_url" class="Sonata\PageBundle\Validator\UniqueUrlValidator">
+      <tag name="validator.constraint_validator" alias="sonata.page.validator.unique_url"/>
+      <argument type="service" id="sonata.page.manager.page"/>
+    </service>
+    <service id="sonata.cache.manager" class="Sonata\Cache\CacheManager">
+      <argument type="service" id="sonata.cache.invalidation.simple"/>
+      <argument type="collection">
+        <argument key="sonata.page.cache.esi" type="service" id="sonata.page.cache.esi"/>
+        <argument key="sonata.page.cache.ssi" type="service" id="sonata.page.cache.ssi"/>
+        <argument key="sonata.page.cache.js_sync" type="service" id="sonata.page.cache.js_sync"/>
+        <argument key="sonata.page.cache.js_async" type="service" id="sonata.page.cache.js_async"/>
+        <argument key="sonata.cache.noop" type="service" id="sonata.cache.noop"/>
+        <argument key="sonata.cache.esi" type="service" id="sonata.cache.esi"/>
+        <argument key="sonata.cache.ssi" type="service" id="sonata.cache.ssi"/>
+        <argument key="sonata.cache.symfony" type="service" id="sonata.cache.symfony"/>
+      </argument>
+      <call method="setRecorder">
+        <argument type="service" id="sonata.cache.recorder"/>
+      </call>
+    </service>
+    <service id="sonata.cache.recorder" class="Sonata\Cache\Invalidation\Recorder">
+      <argument type="service" id="sonata.cache.model_identifier"/>
+    </service>
+    <service id="sonata.cache.model_identifier" class="Sonata\Cache\Invalidation\ModelCollectionIdentifiers">
+      <argument type="collection"/>
+    </service>
+    <service id="sonata.cache.noop" class="Sonata\Cache\Adapter\Cache\NoopCache">
+      <tag name="sonata.cache"/>
+    </service>
+    <service id="sonata.cache.esi" class="Sonata\CacheBundle\Adapter\VarnishCache">
+      <tag name="sonata.cache"/>
+      <argument>an unique security key</argument>
+      <argument type="collection">
+        <argument>varnishadm -T 127.0.0.1:2000 {{ COMMAND }} "{{ EXPRESSION }}"</argument>
+      </argument>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument>purge</argument>
+      <argument type="service" id="controller_resolver"/>
+    </service>
+    <service id="sonata.cache.ssi" class="Sonata\CacheBundle\Adapter\SsiCache">
+      <tag name="sonata.cache"/>
+      <argument>an unique security key</argument>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument type="service" id="controller_resolver"/>
+    </service>
+    <service id="sonata.cache.symfony" class="Sonata\CacheBundle\Adapter\SymfonyCache">
+      <tag name="sonata.cache"/>
+      <argument type="service" id="cmf_routing.router"/>
+      <argument type="service" id="filesystem"/>
+      <argument>C:\xampp\htdocs\symfonyWeb\app\cache\dev</argument>
+      <argument>s3cur3</argument>
+      <argument>true</argument>
+      <argument type="collection">
+        <argument>mytype1</argument>
+        <argument>mycustomtype2</argument>
+      </argument>
+      <argument type="collection">
+        <argument type="collection">
+          <argument key="domain">kooqit.local</argument>
+          <argument key="ip">127.0.0.1</argument>
+          <argument key="port">80</argument>
+          <argument key="basic">false</argument>
+        </argument>
+      </argument>
+    </service>
+    <service id="sonata.cache.invalidation.simple" class="Sonata\CacheBundle\Invalidation\SimpleCacheInvalidation">
+      <argument type="service" id="logger"/>
+    </service>
+    <service id="sonata.cache.orm.event_subscriber.default" class="Sonata\CacheBundle\Invalidation\DoctrineORMListener">
+      <argument type="service" id="sonata.cache.model_identifier"/>
+      <argument type="collection">
+        <argument key="sonata.page.cache.esi" type="service" id="sonata.page.cache.esi"/>
+        <argument key="sonata.page.cache.ssi" type="service" id="sonata.page.cache.ssi"/>
+        <argument key="sonata.page.cache.js_sync" type="service" id="sonata.page.cache.js_sync"/>
+        <argument key="sonata.page.cache.js_async" type="service" id="sonata.page.cache.js_async"/>
+        <argument key="sonata.cache.noop" type="service" id="sonata.cache.noop"/>
+        <argument key="sonata.cache.esi" type="service" id="sonata.cache.esi"/>
+        <argument key="sonata.cache.ssi" type="service" id="sonata.cache.ssi"/>
+        <argument key="sonata.cache.symfony" type="service" id="sonata.cache.symfony"/>
+      </argument>
+    </service>
+    <service id="sonata.cache.orm.event_subscriber" class="Sonata\CacheBundle\Invalidation\DoctrineORMListenerContainerAware">
+      <tag name="doctrine.event_subscriber" connection="default"/>
+      <argument type="service" id="service_container"/>
+      <argument>sonata.cache.orm.event_subscriber.default</argument>
+    </service>
+    <service id="sonata.seo.block.email.share_button" class="Sonata\SeoBundle\Block\Social\EmailShareButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.email.share_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.facebook.like_box" class="Sonata\SeoBundle\Block\Social\FacebookLikeBoxBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.facebook.like_box</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.facebook.like_button" class="Sonata\SeoBundle\Block\Social\FacebookLikeButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.facebook.like_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.facebook.send_button" class="Sonata\SeoBundle\Block\Social\FacebookSendButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.facebook.send_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.facebook.share_button" class="Sonata\SeoBundle\Block\Social\FacebookShareButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.facebook.share_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.twitter.share_button" class="Sonata\SeoBundle\Block\Social\TwitterShareButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.twitter.share_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.twitter.follow_button" class="Sonata\SeoBundle\Block\Social\TwitterFollowButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.twitter.follow_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.twitter.hashtag_button" class="Sonata\SeoBundle\Block\Social\TwitterHashtagButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.twitter.hashtag_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.twitter.mention_button" class="Sonata\SeoBundle\Block\Social\TwitterMentionButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.twitter.mention_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.twitter.embed" class="Sonata\SeoBundle\Block\Social\TwitterEmbedTweetBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.twitter.embed</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.pinterest.pin_button" class="Sonata\SeoBundle\Block\Social\PinterestPinButtonBlockService">
+      <tag name="sonata.block"/>
+      <argument>sonata.seo.block.pinterest.pin_button</argument>
+      <argument type="service" id="templating"/>
+    </service>
+    <service id="sonata.seo.block.breadcrumb.homepage" class="Sonata\SeoBundle\Block\Breadcrumb\HomepageBreadcrumbBlockService">
+      <tag name="sonata.breadcrumb"/>
+      <tag name="sonata.block"/>
+      <argument>homepage</argument>
+      <argument>sonata.seo.block.breadcrumb.homepage</argument>
+      <argument type="service" id="templating"/>
+      <argument type="service" id="knp_menu.menu_provider"/>
+      <argument type="service" id="knp_menu.factory"/>
+    </service>
+    <service id="sonata.seo.event.breadcrumb" class="Sonata\SeoBundle\Event\BreadcrumbListener">
+      <tag name="kernel.event_listener" event="sonata.block.event.breadcrumb" method="onBlock"/>
+      <call method="addBlockService">
+        <argument>sonata.user.block.breadcrumb_index</argument>
+        <argument type="service" id="sonata.user.block.breadcrumb_index"/>
+      </call>
+      <call method="addBlockService">
+        <argument>sonata.user.block.breadcrumb_profile</argument>
+        <argument type="service" id="sonata.user.block.breadcrumb_profile"/>
+      </call>
+      <call method="addBlockService">
+        <argument>sonata.page.block.breadcrumb</argument>
+        <argument type="service" id="sonata.page.block.breadcrumb"/>
+      </call>
+      <call method="addBlockService">
+        <argument>sonata.seo.block.breadcrumb.homepage</argument>
+        <argument type="service" id="sonata.seo.block.breadcrumb.homepage"/>
+      </call>
+    </service>
+    <service id="sonata.seo.page.default" class="Sonata\SeoBundle\Seo\SeoPage">
+      <call method="setTitle">
+        <argument>Sonata Project</argument>
+      </call>
+      <call method="setMetas">
+        <argument type="collection"/>
+      </call>
+      <call method="setHtmlAttributes">
+        <argument type="collection"/>
+      </call>
+      <call method="setSeparator">
+        <argument> - </argument>
+      </call>
+    </service>
+    <service id="sonata.seo.sitemap.manager" class="Sonata\SeoBundle\Sitemap\SourceManager" scope="prototype"/>
+    <service id="cmf_routing.router" class="Symfony\Cmf\Component\Routing\ChainRouter">
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <call method="setContext">
+        <argument type="service" id="router.request_context"/>
+      </call>
+      <call method="add">
+        <argument type="service" id="sonata.page.router"/>
+        <argument>150</argument>
+      </call>
+      <call method="add">
+        <argument type="service" id="router.default"/>
+        <argument>100</argument>
+      </call>
+    </service>
+    <service id="cmf_routing.route_type_form_type" class="Symfony\Cmf\Bundle\RoutingBundle\Form\Type\RouteTypeType">
+      <tag name="form.type" alias="cmf_routing_route_type"/>
+    </service>
+    <service id="sonata.notification.dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher">
+      <argument type="service" id="service_container"/>
+      <call method="addListenerService">
+        <argument>sonata.page.create_snapshots</argument>
+        <argument type="collection">
+          <argument>sonata.page.notification.create_snapshots</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>sonata.page.create_snapshot</argument>
+        <argument type="collection">
+          <argument>sonata.page.notification.create_snapshot</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>sonata.page.cleanup_snapshots</argument>
+        <argument type="collection">
+          <argument>sonata.page.notification.cleanup_snapshots</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>sonata.page.cleanup_snapshot</argument>
+        <argument type="collection">
+          <argument>sonata.page.notification.cleanup_snapshot</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>mailer</argument>
+        <argument type="collection">
+          <argument>sonata.notification.consumer.swift_mailer</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>logger</argument>
+        <argument type="collection">
+          <argument>sonata.notification.consumer.logger</argument>
+          <argument>process</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+    </service>
+    <service id="sonata.notification.manager.message.default" class="Sonata\NotificationBundle\Entity\MessageManager">
+      <argument>Application\Sonata\NotificationBundle\Entity\Message</argument>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.notification.backend.runtime" class="Sonata\NotificationBundle\Backend\RuntimeBackend">
+      <argument type="service" id="sonata.notification.dispatcher"/>
+    </service>
+    <service id="sonata.notification.backend.postpone" class="Sonata\NotificationBundle\Backend\PostponeRuntimeBackend">
+      <tag name="kernel.event_listener" event="kernel.terminate" method="onEvent"/>
+      <argument type="service" id="sonata.notification.dispatcher"/>
+    </service>
+    <service id="sonata.notification.backend.doctrine" class="Sonata\NotificationBundle\Backend\MessageManagerBackendDispatcher">
+      <argument type="service" id="sonata.notification.manager.message.default"/>
+      <argument></argument>
+      <argument></argument>
+      <argument></argument>
+    </service>
+    <service id="sonata.notification.consumer.metadata" class="Sonata\NotificationBundle\Consumer\Metadata">
+      <argument type="collection">
+        <argument key="sonata.page.create_snapshots" type="collection">
+          <argument>sonata.page.notification.create_snapshots</argument>
+        </argument>
+        <argument key="sonata.page.create_snapshot" type="collection">
+          <argument>sonata.page.notification.create_snapshot</argument>
+        </argument>
+        <argument key="sonata.page.cleanup_snapshots" type="collection">
+          <argument>sonata.page.notification.cleanup_snapshots</argument>
+        </argument>
+        <argument key="sonata.page.cleanup_snapshot" type="collection">
+          <argument>sonata.page.notification.cleanup_snapshot</argument>
+        </argument>
+        <argument key="mailer" type="collection">
+          <argument>sonata.notification.consumer.swift_mailer</argument>
+        </argument>
+        <argument key="logger" type="collection">
+          <argument>sonata.notification.consumer.logger</argument>
+        </argument>
+      </argument>
+    </service>
+    <service id="sonata.notification.erroneous_messages_selector" class="Sonata\NotificationBundle\Selector\ErroneousMessagesSelector">
+      <argument type="service" id="doctrine"/>
+      <argument>Application\Sonata\NotificationBundle\Entity\Message</argument>
+    </service>
+    <service id="sonata.notification.event.doctrine_optimize" class="Sonata\NotificationBundle\Event\DoctrineOptimizeListener">
+      <tag name="kernel.event_listener" event="sonata.notification.event.message_iterate_event" method="iterate"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.notification.event.doctrine_backend_optimize" class="Sonata\NotificationBundle\Event\DoctrineBackendOptimizeListener">
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="sonata.notification.consumer.swift_mailer" class="Sonata\NotificationBundle\Consumer\SwiftMailerConsumer">
+      <tag name="sonata.notification.consumer" type="mailer"/>
+      <argument type="service" id="swiftmailer.mailer.default"/>
+    </service>
+    <service id="sonata.notification.consumer.logger" class="Sonata\NotificationBundle\Consumer\LoggerConsumer">
+      <tag name="sonata.notification.consumer" type="logger"/>
+      <argument type="service" id="logger"/>
+    </service>
+    <service id="sonata.notification.admin.message" class="Sonata\NotificationBundle\Admin\MessageAdmin" scope="prototype">
+      <tag name="sonata.admin" manager_type="orm" group="sonata_notification" label="notifications" label_catalogue="%sonata.notification.admin.message.translation_domain%" label_translator_strategy="sonata.admin.label.strategy.underscore"/>
+      <argument>sonata.notification.admin.message</argument>
+      <argument>Application\Sonata\NotificationBundle\Entity\Message</argument>
+      <argument>SonataNotificationBundle:MessageAdmin</argument>
+      <call method="setTranslationDomain">
+        <argument>SonataNotificationBundle</argument>
+      </call>
+      <call method="setFormTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:form_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setFilterTheme">
+        <argument type="collection">
+          <argument>SonataDoctrineORMAdminBundle:Form:filter_admin_fields.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setLabelTranslatorStrategy">
+        <argument type="service" id="sonata.admin.label.strategy.underscore"/>
+      </call>
+      <call method="setManagerType">
+        <argument>orm</argument>
+      </call>
+      <call method="setModelManager">
+        <argument type="service" id="sonata.admin.manager.orm"/>
+      </call>
+      <call method="setFormContractor">
+        <argument type="service" id="sonata.admin.builder.orm_form"/>
+      </call>
+      <call method="setShowBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_show"/>
+      </call>
+      <call method="setListBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_list"/>
+      </call>
+      <call method="setDatagridBuilder">
+        <argument type="service" id="sonata.admin.builder.orm_datagrid"/>
+      </call>
+      <call method="setTranslator">
+        <argument type="service" id="translator.default"/>
+      </call>
+      <call method="setConfigurationPool">
+        <argument type="service" id="sonata.admin.pool"/>
+      </call>
+      <call method="setRouteGenerator">
+        <argument type="service" id="sonata.admin.route.default_generator"/>
+      </call>
+      <call method="setValidator">
+        <argument type="service" id="validator"/>
+      </call>
+      <call method="setSecurityHandler">
+        <argument type="service" id="sonata.admin.security.handler"/>
+      </call>
+      <call method="setMenuFactory">
+        <argument type="service" id="knp_menu.factory"/>
+      </call>
+      <call method="setRouteBuilder">
+        <argument type="service" id="sonata.admin.route.path_info"/>
+      </call>
+      <call method="setPagerType">
+        <argument>default</argument>
+      </call>
+      <call method="setLabel">
+        <argument>notifications</argument>
+      </call>
+      <call method="setPersistFilters">
+        <argument>false</argument>
+      </call>
+      <call method="setTemplates">
+        <argument type="collection">
+          <argument key="user_block">SonataUserBundle:Admin/Core:user_block.html.twig</argument>
+          <argument key="add_block">SonataAdminBundle:Core:add_block.html.twig</argument>
+          <argument key="layout">SonataAdminBundle::standard_layout.html.twig</argument>
+          <argument key="ajax">SonataAdminBundle::ajax_layout.html.twig</argument>
+          <argument key="dashboard">SonataAdminBundle:Core:dashboard.html.twig</argument>
+          <argument key="list">SonataAdminBundle:CRUD:list.html.twig</argument>
+          <argument key="filter">SonataAdminBundle:Form:filter_admin_fields.html.twig</argument>
+          <argument key="show">SonataAdminBundle:CRUD:show.html.twig</argument>
+          <argument key="show_compare">SonataAdminBundle:CRUD:show_compare.html.twig</argument>
+          <argument key="edit">SonataAdminBundle:CRUD:edit.html.twig</argument>
+          <argument key="history">SonataAdminBundle:CRUD:history.html.twig</argument>
+          <argument key="history_revision_timestamp">SonataAdminBundle:CRUD:history_revision_timestamp.html.twig</argument>
+          <argument key="acl">SonataAdminBundle:CRUD:acl.html.twig</argument>
+          <argument key="action">SonataAdminBundle:CRUD:action.html.twig</argument>
+          <argument key="short_object_description">SonataAdminBundle:Helper:short-object-description.html.twig</argument>
+          <argument key="preview">SonataAdminBundle:CRUD:preview.html.twig</argument>
+          <argument key="list_block">SonataAdminBundle:Block:block_admin_list.html.twig</argument>
+          <argument key="delete">SonataAdminBundle:CRUD:delete.html.twig</argument>
+          <argument key="batch">SonataAdminBundle:CRUD:list__batch.html.twig</argument>
+          <argument key="select">SonataAdminBundle:CRUD:list__select.html.twig</argument>
+          <argument key="batch_confirmation">SonataAdminBundle:CRUD:batch_confirmation.html.twig</argument>
+          <argument key="inner_list_row">SonataAdminBundle:CRUD:list_inner_row.html.twig</argument>
+          <argument key="base_list_field">SonataAdminBundle:CRUD:base_list_field.html.twig</argument>
+          <argument key="pager_links">SonataAdminBundle:Pager:links.html.twig</argument>
+          <argument key="pager_results">SonataAdminBundle:Pager:results.html.twig</argument>
+          <argument key="tab_menu_template">SonataAdminBundle:Core:tab_menu_template.html.twig</argument>
+          <argument key="knp_menu_template">SonataAdminBundle:Menu:sonata_menu.html.twig</argument>
+          <argument key="outer_list_rows_mosaic">SonataAdminBundle:CRUD:list_outer_rows_mosaic.html.twig</argument>
+          <argument key="outer_list_rows_list">SonataAdminBundle:CRUD:list_outer_rows_list.html.twig</argument>
+          <argument key="outer_list_rows_tree">SonataAdminBundle:CRUD:list_outer_rows_tree.html.twig</argument>
+          <argument key="search">SonataAdminBundle:Core:search.html.twig</argument>
+          <argument key="search_result_block">SonataAdminBundle:Block:block_search_result.html.twig</argument>
+        </argument>
+      </call>
+      <call method="setSecurityInformation">
+        <argument type="collection"/>
+      </call>
+      <call method="initialize"/>
+      <call method="addExtension">
+        <argument type="service" id="sonata.admin.event.extension"/>
+      </call>
+    </service>
     <service id="twig.extension.acme.demo" class="Acme\DemoBundle\Twig\Extension\DemoExtension" public="false">
       <tag name="twig.extension"/>
       <argument type="service" id="twig.loader"/>
@@ -6402,7 +8974,7 @@
       <argument type="service" id="twig.extension.acme.demo"/>
     </service>
     <service id="web_profiler.controller.profiler" class="Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController">
-      <argument type="service" id="router" on-invalid="null"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="null"/>
       <argument type="service" id="profiler" on-invalid="null"/>
       <argument type="service" id="twig"/>
       <argument type="collection">
@@ -6464,7 +9036,7 @@
     <service id="web_profiler.controller.router" class="Symfony\Bundle\WebProfilerBundle\Controller\RouterController">
       <argument type="service" id="profiler" on-invalid="null"/>
       <argument type="service" id="twig"/>
-      <argument type="service" id="router" on-invalid="null"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="null"/>
     </service>
     <service id="web_profiler.controller.exception" class="Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController">
       <argument type="service" id="profiler" on-invalid="null"/>
@@ -6477,7 +9049,7 @@
       <argument>false</argument>
       <argument>2</argument>
       <argument>bottom</argument>
-      <argument type="service" id="router" on-invalid="ignore"/>
+      <argument type="service" id="cmf_routing.router" on-invalid="ignore"/>
     </service>
     <service id="sensio_distribution.webconfigurator" class="Sensio\Bundle\DistributionBundle\Configurator\Configurator">
       <argument>C:\xampp\htdocs\symfonyWeb\app</argument>
@@ -6681,27 +9253,6 @@
       <argument type="service" id="templating.locator"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id="router" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
-      <tag name="monolog.logger" channel="router"/>
-      <argument type="service" id="service_container"/>
-      <argument>C:\xampp\htdocs\symfonyWeb\app\cache\dev/assetic/routing.yml</argument>
-      <argument type="collection">
-        <argument key="cache_dir">C:\xampp\htdocs\symfonyWeb\app\cache\dev</argument>
-        <argument key="debug">true</argument>
-        <argument key="generator_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
-        <argument key="generator_base_class">Symfony\Component\Routing\Generator\UrlGenerator</argument>
-        <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper</argument>
-        <argument key="generator_cache_class">appDevUrlGenerator</argument>
-        <argument key="matcher_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
-        <argument key="matcher_base_class">Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher</argument>
-        <argument key="matcher_dumper_class">Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper</argument>
-        <argument key="matcher_cache_class">appDevUrlMatcher</argument>
-        <argument key="strict_requirements">true</argument>
-        <argument key="resource_type">yaml</argument>
-      </argument>
-      <argument type="service" id="router.request_context" on-invalid="ignore"/>
-      <argument type="service" id="monolog.logger.router" on-invalid="ignore"/>
-    </service>
     <service id="annotation_reader" class="Doctrine\Common\Annotations\FileCacheReader">
       <argument type="service">
         <service class="Doctrine\Common\Annotations\AnnotationReader" public="false"/>
@@ -6790,6 +9341,22 @@
       <call method="addPath">
         <argument>C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\UserBundle/Resources/views</argument>
         <argument>ApplicationSonataUser</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\page-bundle/Resources/views</argument>
+        <argument>SonataPage</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\xampp\htdocs\symfonyWeb\vendor\sonata-project\seo-bundle/Resources/views</argument>
+        <argument>SonataSeo</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\NotificationBundle/Resources/views</argument>
+        <argument>ApplicationSonataNotification</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\xampp\htdocs\symfonyWeb\src\Application\Sonata\PageBundle/Resources/views</argument>
+        <argument>ApplicationSonataPage</argument>
       </call>
       <call method="addPath">
         <argument>C:\xampp\htdocs\symfonyWeb\src\Acme\DemoBundle/Resources/views</argument>
@@ -6887,7 +9454,7 @@
     <service id="sonata.admin.security.handler" class="Sonata\AdminBundle\Security\Handler\NoopSecurityHandler"/>
     <service id="fos_user.mailer" class="FOS\UserBundle\Mailer\Mailer">
       <argument type="service" id="swiftmailer.mailer.default"/>
-      <argument type="service" id="router"/>
+      <argument type="service" id="cmf_routing.router"/>
       <argument type="service" id="templating"/>
       <argument type="collection">
         <argument key="confirmation.template">FOSUserBundle:Registration:email.txt.twig</argument>
@@ -6973,6 +9540,7 @@
     <service id="event_dispatcher" alias="debug.event_dispatcher"/>
     <service id="session.storage" alias="session.storage.native"/>
     <service id="translator" alias="translator.default"/>
+    <service id="router" alias="cmf_routing.router"/>
     <service id="security.acl.dbal.connection" alias="doctrine.dbal.default_connection"/>
     <service id="debug.templating.engine.twig" alias="templating"/>
     <service id="swiftmailer.spool" alias="swiftmailer.mailer.default.spool"/>
@@ -6995,6 +9563,10 @@
     <service id="sonata.user.group_manager" alias="fos_user.group_manager"/>
     <service id="sonata.user.authentication.form" alias="fos_user.profile.form"/>
     <service id="sonata.user.authentication.form_handler" alias="fos_user.profile.form.handler"/>
+    <service id="sonata.page.site.selector" alias="sonata.page.site.selector.host"/>
+    <service id="sonata.seo.page" alias="sonata.seo.page.default"/>
+    <service id="sonata.notification.backend" alias="sonata.notification.backend.runtime"/>
+    <service id="sonata.notification.manager.message" alias="sonata.notification.manager.message.default"/>
     <service id="sensio.distribution.webconfigurator" alias="sensio_distribution.webconfigurator"/>
     <service id="console.command.sensiolabs_security_command_securitycheckercommand" alias="sensio_distribution.security_checker.command"/>
   </services>
